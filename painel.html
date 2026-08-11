@@ -48,8 +48,8 @@
     }
 
     .logo-partido{
-      max-width: 140px;
-      max-height: 80px;
+      max-width: 160px;
+      max-height: 85px;
       height: auto;
       object-fit: contain;
     }
@@ -280,9 +280,9 @@
 
 <div class="card">
 
-  <!-- Área da Logo do Partido -->
+  <!-- Área da Logo (apontando para logoapp.png) -->
   <div class="logo-container">
-    <img src="logo.png" alt="Logo do Partido" class="logo-partido" onerror="this.style.display='none'">
+    <img src="logoapp.png" alt="Logo" class="logo-partido" onerror="this.style.display='none'">
   </div>
 
   <h1>Consulta Inteligente</h1>
@@ -367,6 +367,7 @@
 </div>
 
 <script>
+const VERSAO_APP = "1.0.3";
 const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBmOeeszv7_akRGbqtrx86RR6dyEWGkroF9T1vH3t-RVi9E-g/exec";
 
 const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
