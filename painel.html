@@ -6,7 +6,6 @@
   <title>Painel | Consulta Inteligente</title>
   <meta name="theme-color" content="#0B1F3A">
 
-  <!-- Bibliotecas para geração e impressão do PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
@@ -113,7 +112,7 @@
   </div>
 
   <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar e Imprimir Relatório em PDF</button>
-  <a class="btn btn-voltar" href="index.html">Voltar à Capa</a>
+  <a class="btn btn-voltar" href="./index.html">Voltar à Capa</a>
   <button type="button" class="btn btn-sair" onclick="sair()">Sair do Sistema</button>
 </div>
 
@@ -122,7 +121,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBm
 
 const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
 if(!usuario){
-  window.location.href = "login.html";
+  window.location.href = "./login.html";
 } else {
   document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Filtro: ${usuario.estados || "Geral"}`;
 }
@@ -132,8 +131,7 @@ let dadosFiltrados = [];
 
 async function carregarDados(){
   try {
-    const estadoFiltro = encodeURIComponent(usuario.estados || "");
-    const res = await fetch(`${API_URL}?q=${estadoFiltro}&token=${encodeURIComponent(usuario.token || "")}`);
+    const res = await fetch(`${API_URL}?token=${encodeURIComponent(usuario.token || "")}`);
     const data = await res.json();
 
     if(data.status === "ok"){
@@ -163,10 +161,10 @@ function renderTabela(lista){
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><strong>${i.nome || "-"}</strong></td>
-      <td>${i.whatsapp || i.celular || i.telefone || "-"}</td>
+      <td>${i.whatsapp || i.celular || "-"}</td>
       <td>${i.cidade || "-"}</td>
       <td>${i.estado || "-"}</td>
-      <td><span class="status-badge">${i.status2 || i.status || "Pendente"}</span></td>
+      <td><span class="status-badge">${i.status2 || "Pendente"}</span></td>
     `;
     tbody.appendChild(tr);
   });
@@ -186,7 +184,6 @@ function filtrarDados(){
   renderTabela(dadosFiltrados);
 }
 
-// GERAÇÃO DO PDF PRONTO PARA IMPRESSÃO
 function gerarPDF(){
   if(dadosFiltrados.length === 0){
     alert("Não existem registros selecionados para gerar o relatório.");
@@ -196,8 +193,7 @@ function gerarPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("p", "mm", "a4");
 
-  // Cabeçalho Oficial
-  doc.setFillColor(11, 31, 58); // Azul Marinho
+  doc.setFillColor(11, 31, 58);
   doc.rect(0, 0, 210, 28, "F");
   
   doc.setTextColor(255, 255, 255);
@@ -207,17 +203,15 @@ function gerarPDF(){
   doc.setFontSize(9);
   doc.text(`Emissão: ${new Date().toLocaleDateString("pt-BR")} | Total de Registros: ${dadosFiltrados.length}`, 14, 23);
 
-  // Mapeamento exato das colunas solicitadas
   const colunas = ["Nome Completo", "Celular", "Cidade", "Estado", "Status 2"];
   const linhas = dadosFiltrados.map(r => [
     r.nome || "-",
-    r.whatsapp || r.celular || r.telefone || "-",
+    r.whatsapp || r.celular || "-",
     r.cidade || "-",
     r.estado || "-",
-    r.status2 || r.status || "Pendente"
+    r.status2 || "Pendente"
   ]);
 
-  // Configuração da Tabela em PDF
   doc.autoTable({
     startY: 32,
     head: [colunas],
@@ -235,21 +229,20 @@ function gerarPDF(){
       valign: "middle" 
     },
     columnStyles: {
-      0: { cellWidth: 55 }, // Nome
-      1: { cellWidth: 35 }, // Celular
-      2: { cellWidth: 40 }, // Cidade
-      3: { cellWidth: 20 }, // Estado
-      4: { cellWidth: 35 }  // Status 2
+      0: { cellWidth: 55 },
+      1: { cellWidth: 35 },
+      2: { cellWidth: 40 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 35 }
     }
   });
 
-  // Salva o PDF para visualização e impressão
   doc.save(`Relatorio_Consulta_${new Date().toISOString().split("T")[0]}.pdf`);
 }
 
 function sair(){
   localStorage.removeItem("usuarioConsulta");
-  window.location.href = "login.html";
+  window.location.href = "./login.html";
 }
 
 carregarDados();
