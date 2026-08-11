@@ -1,17 +1,111 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Consulta Inteligente</title>
+  <meta name="theme-color" content="#0B1F3A">
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    body{
+      font-family:Arial, sans-serif;
+      background:#f4f6f9;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      padding:20px;
+    }
+    .card{
+      background:#fff;
+      width:100%;
+      max-width:400px;
+      border-radius:22px;
+      box-shadow:0 12px 30px rgba(0,0,0,.12);
+      padding:36px 26px;
+      text-align:center;
+    }
+    h1{ color:#0B1F3A; font-size:24px; margin-bottom:6px; }
+    .subtitle{ color:#666; font-size:14px; margin-bottom:24px; }
+    .field{ text-align:left; margin-bottom:16px; }
+    label{ display:block; font-weight:bold; color:#0B1F3A; margin-bottom:6px; font-size:14px; }
+    input{
+      width:100%; padding:14px; border:1px solid #ccc;
+      border-radius:10px; font-size:15px; outline:none;
+    }
+    input:focus{ border-color:#0B1F3A; }
+    .btn{
+      width:100%; padding:15px; border:none; border-radius:12px;
+      background:#0B1F3A; color:#fff; font-size:16px; font-weight:bold;
+      cursor:pointer; margin-top:10px; transition:background .2s;
+    }
+    .btn:hover{ background:#13305c; }
+    .btn:disabled{ background:#8a97a8; cursor:not-allowed; }
+    .btn-voltar{ display:block; margin-top:18px; color:#0B1F3A; font-weight:bold; text-decoration:none; font-size:14px; }
+    .msg-erro{ color:#C0392B; font-weight:bold; font-size:14px; margin-top:16px; min-height:20px; }
+  </style>
 </head>
 <body>
 
-<h2>Login do Sistema</h2>
+<div class="card">
+  <h1>Acesso ao Sistema</h1>
+  <div class="subtitle">Consulta Inteligente de Registros</div>
 
-<p>Esta tela será conectada à sua planilha posteriormente.</p>
+  <form id="loginForm" onsubmit="executarLogin(event)">
+    <div class="field">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="seuemail@exemplo.com" required autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" placeholder="Sua senha" required autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn" id="btnEntrar">Entrar</button>
+  </form>
 
-<a href="index.html">Voltar</a>
+  <div class="msg-erro" id="msgErro"></div>
+  <a class="btn-voltar" href="index.html">← Voltar à capa</a>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxcFcKBO39I7UibZoFiPz3a1TZIpXtN5kGK0XnFJu-P-yfMhpCcGCMZIE2LmGtnD-qFqw/exec";
+
+async function executarLogin(e){
+  if(e) e.preventDefault();
+  
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value.trim();
+  const btn = document.getElementById("btnEntrar");
+  const msg = document.getElementById("msgErro");
+
+  msg.innerText = "";
+  btn.disabled = true;
+  btn.innerText = "Autenticando...";
+
+  try {
+    const url = `${API_URL}?login=1&email=${encodeURIComponent(email)}&senha=${encodeURIComponent(senha)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(data.status === "ok"){
+      localStorage.setItem("usuarioConsulta", JSON.stringify({
+        email: email,
+        perfil: data.perfil,
+        estados: data.estados,
+        token: data.token || ""
+      }));
+      window.location.href = "painel.html";
+    } else {
+      msg.innerText = data.mensagem || "Credenciais inválidas.";
+    }
+  } catch(err){
+    msg.innerText = "Erro ao conectar com o servidor.";
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "Entrar";
+  }
+}
+</script>
 
 </body>
 </html>
