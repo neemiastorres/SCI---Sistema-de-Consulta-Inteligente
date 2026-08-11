@@ -1,0 +1,23 @@
+{
+  "name": "Consulta Inteligente - Artigo Um",
+  "short_name": "Consulta SCI",
+  "description": "Sistema de consulta inteligente de registros por Estado e relatório em PDF.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "logoapp.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logoapp.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
