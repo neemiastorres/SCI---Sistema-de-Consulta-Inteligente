@@ -6,60 +6,104 @@
   <title>Consulta Inteligente | Artigo Um</title>
   <meta name="theme-color" content="#0B1F3A">
 
-  <!-- Força o navegador a sempre buscar a versão mais recente -->
+  <!-- Invalidação de cache local -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 
   <style>
     *{ margin:0; padding:0; box-sizing:border-box; }
+    
     body{
-      font-family:Arial, sans-serif;
-      background:#f4f6f9;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      min-height:100vh;
-      padding:20px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+      color: #1e293b;
     }
+
     .card{
-      background:#fff;
-      width:100%;
-      max-width:420px;
-      border-radius:22px;
-      box-shadow:0 12px 30px rgba(0,0,0,.12);
-      padding:36px 26px;
-      text-align:center;
+      background: #ffffff;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      padding: 40px 30px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
     }
-    .logo{ width:90px; height:auto; margin-bottom:16px; }
-    h1{ color:#0B1F3A; font-size:26px; margin-bottom:10px; }
-    p{ color:#555; font-size:15px; line-height:1.5; margin-bottom:24px; }
+
+    /* Container e Ajuste da Logo na Capa */
+    .logo-container{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .logo-partido{
+      max-width: 180px;
+      max-height: 95px;
+      height: auto;
+      object-fit: contain;
+    }
+
+    h1{ 
+      color: #0f172a; 
+      font-size: 26px; 
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px; 
+    }
+
+    p{ 
+      color: #64748b; 
+      font-size: 15px; 
+      line-height: 1.6; 
+      margin-bottom: 28px; 
+      font-weight: 400;
+    }
+
     .btn{
-      display:block;
-      width:100%;
-      padding:15px;
-      border-radius:12px;
-      text-decoration:none;
-      color:white;
-      font-weight:bold;
-      font-size:16px;
-      background:#0B1F3A;
-      transition:background .2s;
+      display: block;
+      width: 100%;
+      padding: 16px;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 16px;
+      background: #0f172a;
+      transition: all .2s ease;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
     }
-    .btn:hover{ background:#13305c; }
+
+    .btn:hover{ 
+      background: #1e293b; 
+      transform: translateY(-1px);
+    }
   </style>
 </head>
 <body>
 
 <div class="card">
-  <img src="logo-a1.png" alt="Logo" class="logo" onerror="this.style.display='none'">
+
+  <!-- Logo do Partido na Capa -->
+  <div class="logo-container">
+    <img src="logoapp.png" alt="Logo" class="logo-partido" onerror="this.style.display='none'">
+  </div>
+
   <h1>Consulta Inteligente</h1>
   <p>
-    Plataforma de acesso rápido para consulta de cadastros,
-    pesquisa em tempo real e geração de relatórios oficiais por Estado.
+    Plataforma oficial para consulta rápida de registros,
+    pesquisa em tempo real e emissão de relatórios por Estado.
   </p>
-  <!-- Link forçando a versão mais recente do login -->
-  <a class="btn" href="./login.html?v=1.0.1">Acessar Sistema</a>
+
+  <a class="btn" href="login.html">Acessar Sistema</a>
+
 </div>
 
 </body>
