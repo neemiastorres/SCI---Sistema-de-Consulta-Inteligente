@@ -16,121 +16,275 @@
 
   <style>
     *{ margin:0; padding:0; box-sizing:border-box; }
-    body{
-      font-family:Arial, sans-serif;
-      background:#f4f6f9;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      min-height:100vh;
-      padding:20px;
-    }
-    .card{
-      background:#fff;
-      width:100%;
-      max-width:900px;
-      border-radius:22px;
-      box-shadow:0 12px 30px rgba(0,0,0,.12);
-      padding:32px 24px;
-      text-align:center;
-    }
-    h1{ color:#0B1F3A; font-size:26px; margin-bottom:4px; }
-    .subtitle{ color:#666; font-size:14px; margin-bottom:20px; }
     
-    .stats-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
-    .stat-box{ background:#eef4ff; border-radius:14px; padding:16px; }
-    .stat-val{ font-size:26px; font-weight:bold; color:#0B1F3A; }
-    .stat-lbl{ font-size:12px; color:#555; margin-top:2px; }
+    body{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+      color: #1e293b;
+    }
+
+    .card{
+      background: #ffffff;
+      width: 100%;
+      max-width: 920px;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      padding: 36px 28px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
+
+    /* Container e Ajuste da Logo */
+    .logo-container{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .logo-partido{
+      max-width: 140px;
+      max-height: 80px;
+      height: auto;
+      object-fit: contain;
+    }
+
+    h1{ 
+      color: #0f172a; 
+      font-size: 26px; 
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px; 
+    }
+
+    .subtitle{ 
+      color: #64748b; 
+      font-size: 14px; 
+      font-weight: 500;
+      margin-bottom: 24px; 
+    }
+    
+    /* Grid de Estatísticas */
+    .stats-grid{ 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 16px; 
+      margin-bottom: 24px; 
+    }
+
+    .stat-box{ 
+      background: #f8fafc; 
+      border-radius: 16px; 
+      padding: 18px; 
+      border: 1px solid #e2e8f0;
+    }
+
+    .stat-val{ 
+      font-size: 28px; 
+      font-weight: 800; 
+      color: #0284c7; 
+    }
+
+    .stat-lbl{ 
+      font-size: 12px; 
+      color: #64748b; 
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px; 
+    }
     
     /* Painel de Filtros Avançados */
     .filters-grid{
-      display:grid;
+      display: grid;
       grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap:12px;
-      text-align:left;
-      margin-bottom:20px;
-      background:#f8fafc;
-      padding:16px;
-      border-radius:14px;
-      border:1px solid #e2e8f0;
+      gap: 12px;
+      text-align: left;
+      margin-bottom: 20px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
     }
-    @media (max-width:768px){
-      .filters-grid{ grid-template-columns:1fr; }
-    }
-    .filter-group label{
-      display:block;
-      font-weight:bold;
-      color:#0B1F3A;
-      margin-bottom:6px;
-      font-size:12px;
-    }
-    .filter-group input, .filter-group select{
-      width:100%;
-      padding:10px 12px;
-      border:1px solid #ccc;
-      border-radius:8px;
-      font-size:14px;
-      outline:none;
-      background:#fff;
-    }
-    .filter-group input:focus, .filter-group select:focus{ border-color:#0B1F3A; }
 
-    .table-container{ overflow-x:auto; margin-bottom:16px; border-radius:10px; border:1px solid #e0e0e0; }
-    table{ width:100%; border-collapse:collapse; font-size:13px; text-align:left; }
-    th{ background:#0B1F3A; color:#fff; padding:12px 10px; white-space:nowrap; }
-    td{ padding:12px 10px; border-bottom:1px solid #eee; white-space:nowrap; }
-    tr:nth-child(even){ background:#f9fbfd; }
+    @media (max-width: 768px){
+      .filters-grid{ grid-template-columns: 1fr; }
+    }
+
+    .filter-group label{
+      display: block;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+
+    .filter-group input, .filter-group select{
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      background: #ffffff;
+      color: #0f172a;
+      transition: all .2s ease;
+    }
+
+    .filter-group input:focus, .filter-group select:focus{ 
+      border-color: #0284c7; 
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    /* Tabela de Resultados */
+    .table-container{ 
+      overflow-x: auto; 
+      margin-bottom: 18px; 
+      border-radius: 12px; 
+      border: 1px solid #e2e8f0; 
+    }
+
+    table{ 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 13px; 
+      text-align: left; 
+    }
+
+    th{ 
+      background: #0f172a; 
+      color: #f8fafc; 
+      padding: 14px 12px; 
+      font-weight: 600;
+      white-space: nowrap; 
+    }
+
+    td{ 
+      padding: 12px; 
+      border-bottom: 1px solid #f1f5f9; 
+      white-space: nowrap; 
+      color: #334155;
+    }
+
+    tr:nth-child(even){ background: #f8fafc; }
     
     .status-badge{
-      display:inline-block;
-      padding:4px 8px;
-      border-radius:6px;
-      font-size:11px;
-      font-weight:bold;
-      background:#eef4ff;
-      color:#0B1F3A;
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0369a1;
     }
 
     /* Controles de Paginação */
     .pagination-container{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      margin-bottom:20px;
-      padding:0 4px;
-      flex-wrap:wrap;
-      gap:10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 0 4px;
+      flex-wrap: wrap;
+      gap: 12px;
     }
-    .pagination-info{ font-size:13px; color:#555; font-weight:bold; }
-    .pagination-buttons{ display:flex; gap:8px; align-items:center; }
-    .btn-page{
-      padding:8px 16px;
-      border:1px solid #0B1F3A;
-      background:#fff;
-      color:#0B1F3A;
-      border-radius:8px;
-      font-weight:bold;
-      cursor:pointer;
-      font-size:13px;
-      transition:all .2s;
-    }
-    .btn-page:hover:not(:disabled){ background:#0B1F3A; color:#fff; }
-    .btn-page:disabled{ opacity:0.4; cursor:not-allowed; border-color:#ccc; }
 
-    .btn{
-      display:block; width:100%; border:none; border-radius:12px; padding:14px;
-      font-size:15px; font-weight:bold; cursor:pointer; text-decoration:none;
-      margin-top:10px; text-align:center;
+    .pagination-info{ 
+      font-size: 13px; 
+      color: #64748b; 
+      font-weight: 500; 
     }
-    .btn-pdf{ background:#7ED957; color:#0B1F3A; }
-    .btn-pdf:hover{ background:#6bc74a; }
-    .btn-voltar{ background:#0B1F3A; color:#fff; }
-    .btn-sair{ background:#C0392B; color:#fff; }
+
+    .pagination-buttons{ 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+    }
+
+    .btn-page{
+      padding: 8px 16px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all .2s;
+    }
+
+    .btn-page:hover:not(:disabled){ 
+      background: #0f172a; 
+      color: #ffffff; 
+      border-color: #0f172a;
+    }
+
+    .btn-page:disabled{ 
+      opacity: 0.4; 
+      cursor: not-allowed; 
+      border-color: #e2e8f0; 
+    }
+
+    /* Botões de Ação Clean */
+    .btn{
+      display: block; 
+      width: 100%; 
+      border: none; 
+      border-radius: 12px; 
+      padding: 15px;
+      font-size: 15px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      text-decoration: none;
+      margin-top: 12px; 
+      text-align: center;
+      transition: all .2s ease;
+    }
+
+    .btn-pdf{ 
+      background: #10b981; 
+      color: #ffffff; 
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-pdf:hover{ 
+      background: #059669; 
+      transform: translateY(-1px);
+    }
+
+    .btn-voltar{ 
+      background: #0f172a; 
+      color: #ffffff; 
+    }
+
+    .btn-voltar:hover{ 
+      background: #1e293b; 
+    }
+
+    .btn-sair{ 
+      background: #ef4444; 
+      color: #ffffff; 
+    }
+
+    .btn-sair:hover{ 
+      background: #dc2626; 
+    }
   </style>
 </head>
 <body>
 
 <div class="card">
+
+  <!-- Área da Logo do Partido -->
+  <div class="logo-container">
+    <img src="logo.png" alt="Logo do Partido" class="logo-partido" onerror="this.style.display='none'">
+  </div>
+
   <h1>Consulta Inteligente</h1>
   <div class="subtitle" id="infoUsuario">Carregando dados...</div>
 
@@ -145,7 +299,7 @@
     </div>
   </div>
 
-  <!-- Formulário com Filtros Específicos por Campo -->
+  <!-- Painel de Filtros -->
   <div class="filters-grid">
     <div class="filter-group">
       <label for="buscaNome">Buscar por Nome / Celular</label>
@@ -184,16 +338,16 @@
         </tr>
       </thead>
       <tbody id="tabelaCorpo">
-        <tr><td colspan="5" style="text-align:center; color:#777;">Carregando registros...</td></tr>
+        <tr><td colspan="5" style="text-align:center; color:#64748b;">Carregando registros...</td></tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Barra de Paginação -->
+  <!-- Paginação -->
   <div class="pagination-container">
     <div class="pagination-info">
       Exibir 
-      <select id="itensPorPagina" onchange="mudarItensPorPagina()" style="padding:4px 8px; border-radius:6px;">
+      <select id="itensPorPagina" onchange="mudarItensPorPagina()" style="padding:4px 8px; border-radius:6px; border:1px solid #cbd5e1;">
         <option value="10" selected>10 por página</option>
         <option value="25">25 por página</option>
       </select>
@@ -201,23 +355,23 @@
     </div>
     <div class="pagination-buttons">
       <button class="btn-page" id="btnAnt" onclick="paginaAnterior()">◄ Anterior</button>
-      <span id="lblPaginaAtual" style="font-size:13px; font-weight:bold;">Pág. 1 de 1</span>
+      <span id="lblPaginaAtual" style="font-size:13px; font-weight:bold; color:#0f172a;">Pág. 1 de 1</span>
       <button class="btn-page" id="btnProx" onclick="proximaPagina()">Próximo ►</button>
     </div>
   </div>
 
+  <!-- Botões Principais -->
   <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar e Imprimir Relatório em PDF</button>
-  <a class="btn btn-voltar" href="./index.html?v=1.0.2">Voltar à Capa</a>
+  <a class="btn btn-voltar" href="./index.html">Voltar à Capa</a>
   <button type="button" class="btn btn-sair" onclick="sair()">Sair do Sistema</button>
 </div>
 
 <script>
-const VERSAO_APP = "1.0.2";
 const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBmOeeszv7_akRGbqtrx86RR6dyEWGkroF9T1vH3t-RVi9E-g/exec";
 
 const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
 if(!usuario){
-  window.location.href = `./login.html?v=${VERSAO_APP}`;
+  window.location.href = "./login.html";
 } else {
   document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Permissão: ${usuario.estados || "Geral"}`;
 }
@@ -225,13 +379,12 @@ if(!usuario){
 let dadosGerais = [];
 let dadosFiltrados = [];
 
-// Variáveis de Paginação
 let paginaAtual = 1;
 let itensPorPagina = 10;
 
 async function carregarDados(){
   try {
-    const res = await fetch(`${API_URL}?token=${encodeURIComponent(usuario.token || "")}&_v=${VERSAO_APP}`, { cache: "no-store" });
+    const res = await fetch(`${API_URL}?token=${encodeURIComponent(usuario.token || "")}`, { cache: "no-store" });
     const data = await res.json();
 
     if(data.status === "ok"){
@@ -250,7 +403,6 @@ async function carregarDados(){
   }
 }
 
-// Preenche os selects de Estado, Cidade e Status com base nos dados reais
 function populaOpcoesFiltros(){
   const selectUF = document.getElementById("filtroEstado");
   const selectStatus = document.getElementById("filtroStatus");
@@ -271,7 +423,6 @@ function populaOpcoesFiltros(){
   populaCidades();
 }
 
-// Atualiza a lista de cidades dependendo do Estado selecionado
 function populaCidades(){
   const selectUF = document.getElementById("filtroEstado").value;
   const selectCidade = document.getElementById("filtroCidade");
@@ -294,7 +445,6 @@ function aoMudarEstado(){
   aplicarFiltros();
 }
 
-// Filtra combinando Nome/Celular + Estado + Cidade + Status 2
 function aplicarFiltros(){
   const termoNome = document.getElementById("buscaNome").value.trim().toLowerCase();
   const ufSel = document.getElementById("filtroEstado").value;
@@ -320,7 +470,6 @@ function aplicarFiltros(){
   renderizarPagina();
 }
 
-// Renderiza apenas os 10 ou 25 itens da página atual
 function renderizarPagina(){
   const total = dadosFiltrados.length;
   document.getElementById("totalCadastros").innerText = total;
@@ -346,7 +495,7 @@ function renderizarPagina(){
 function renderTabela(lista){
   const tbody = document.getElementById("tabelaCorpo");
   if(lista.length === 0){
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#777;">Nenhum registro localizado com estes filtros.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">Nenhum registro localizado com estes filtros.</td></tr>`;
     return;
   }
   tbody.innerHTML = "";
@@ -384,7 +533,6 @@ function mudarItensPorPagina(){
   renderizarPagina();
 }
 
-// O PDF sempre exporta TODOS os contatos que passaram pelo filtro atual
 function gerarPDF(){
   if(dadosFiltrados.length === 0){
     alert("Não existem registros selecionados para gerar o relatório.");
@@ -394,7 +542,7 @@ function gerarPDF(){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("p", "mm", "a4");
 
-  doc.setFillColor(11, 31, 58);
+  doc.setFillColor(15, 23, 42);
   doc.rect(0, 0, 210, 28, "F");
   
   doc.setTextColor(255, 255, 255);
@@ -419,7 +567,7 @@ function gerarPDF(){
     body: linhas,
     theme: "striped",
     headStyles: { 
-      fillColor: [11, 31, 58], 
+      fillColor: [15, 23, 42], 
       textColor: [255, 255, 255], 
       fontStyle: "bold",
       fontSize: 9 
@@ -443,7 +591,7 @@ function gerarPDF(){
 
 function sair(){
   localStorage.removeItem("usuarioConsulta");
-  window.location.href = `./login.html?v=${VERSAO_APP}`;
+  window.location.href = "./login.html";
 }
 
 carregarDados();
