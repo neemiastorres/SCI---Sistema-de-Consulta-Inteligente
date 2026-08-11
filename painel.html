@@ -1,17 +1,217 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel | Consulta Inteligente</title>
+  <meta name="theme-color" content="#0B1F3A">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    body{
+      font-family:Arial, sans-serif;
+      background:#f4f6f9;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      padding:20px;
+    }
+    .card{
+      background:#fff;
+      width:100%;
+      max-width:760px;
+      border-radius:22px;
+      box-shadow:0 12px 30px rgba(0,0,0,.12);
+      padding:32px 24px;
+      text-align:center;
+    }
+    h1{ color:#0B1F3A; font-size:26px; margin-bottom:4px; }
+    .subtitle{ color:#666; font-size:14px; margin-bottom:20px; }
+    .stats-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
+    .stat-box{ background:#eef4ff; border-radius:14px; padding:16px; }
+    .stat-val{ font-size:26px; font-weight:bold; color:#0B1F3A; }
+    .stat-lbl{ font-size:12px; color:#555; margin-top:2px; }
+    .search-box{ text-align:left; margin-bottom:16px; }
+    .search-box label{ display:block; font-weight:bold; color:#0B1F3A; margin-bottom:6px; font-size:13px; }
+    .search-box input{
+      width:100%; padding:14px; border:1px solid #ccc;
+      border-radius:10px; font-size:15px; outline:none;
+    }
+    .search-box input:focus{ border-color:#0B1F3A; }
+    .table-container{ overflow-x:auto; margin-bottom:20px; border-radius:10px; border:1px solid #e0e0e0; }
+    table{ width:100%; border-collapse:collapse; font-size:13px; text-align:left; }
+    th{ background:#0B1F3A; color:#fff; padding:12px 10px; white-space:nowrap; }
+    td{ padding:12px 10px; border-bottom:1px solid #eee; white-space:nowrap; }
+    tr:nth-child(even){ background:#f9fbfd; }
+    .btn{
+      display:block; width:100%; border:none; border-radius:12px; padding:14px;
+      font-size:15px; font-weight:bold; cursor:pointer; text-decoration:none;
+      margin-top:10px; text-align:center;
+    }
+    .btn-pdf{ background:#7ED957; color:#0B1F3A; }
+    .btn-pdf:hover{ background:#6bc74a; }
+    .btn-voltar{ background:#0B1F3A; color:#fff; }
+    .btn-sair{ background:#C0392B; color:#fff; }
+  </style>
 </head>
 <body>
 
-<h2>Painel de Consulta</h2>
+<div class="card">
+  <h1>Painel de Consulta</h1>
+  <div class="subtitle" id="infoUsuario">Carregando dados do usuário...</div>
 
-<p>Em breve este painel estará conectado à sua planilha.</p>
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-val" id="totalCadastros">--</div>
+      <div class="stat-lbl">Total de Cadastrados</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="ultimoCadastro">--</div>
+      <div class="stat-lbl">Último Registro</div>
+    </div>
+  </div>
 
-<a href="index.html">Voltar</a>
+  <div class="search-box">
+    <label for="inputBusca">Pesquisar por Nome, Bairro, Cidade, Estado ou WhatsApp</label>
+    <input type="text" id="inputBusca" placeholder="Digite para filtrar..." oninput="filtrarDados()">
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Nome</th>
+          <th>Cidade/UF</th>
+          <th>WhatsApp</th>
+          <th>E-mail</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaCorpo">
+        <tr><td colspan="5" style="text-align:center; color:#777;">Carregando registros...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar Relatório em PDF</button>
+  <a class="btn btn-voltar" href="index.html">Voltar à Capa</a>
+  <button type="button" class="btn btn-sair" onclick="sair()">Sair do Sistema</button>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxcFcKBO39I7UibZoFiPz3a1TZIpXtN5kGK0XnFJu-P-yfMhpCcGCMZIE2LmGtnD-qFqw/exec";
+
+const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
+if(!usuario){
+  window.location.href = "login.html";
+} else {
+  document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Estado(s): ${usuario.estados || "Geral"}`;
+}
+
+let dadosGerais = [];
+let dadosFiltrados = [];
+
+async function carregarDados(){
+  try {
+    const estadoFiltro = encodeURIComponent(usuario.estados || "");
+    const res = await fetch(`${API_URL}?q=${estadoFiltro}&token=${encodeURIComponent(usuario.token || "")}`);
+    const data = await res.json();
+
+    if(data.status === "ok"){
+      dadosGerais = data.resultados || [];
+      dadosFiltrados = dadosGerais;
+      document.getElementById("totalCadastros").innerText = data.total || dadosGerais.length;
+      document.getElementById("ultimoCadastro").innerText = data.ultimo ? new Date(data.ultimo).toLocaleDateString("pt-BR") : "--";
+      renderTabela(dadosFiltrados);
+    } else {
+      document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${data.mensagem || "Erro ao carregar registros."}</td></tr>`;
+    }
+  } catch(e) {
+    document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Erro ao conectar com a planilha.</td></tr>`;
+  }
+}
+
+function renderTabela(lista){
+  const tbody = document.getElementById("tabelaCorpo");
+  if(lista.length === 0){
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#777;">Nenhum registro encontrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = "";
+  lista.forEach(i => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${i.data ? new Date(i.data).toLocaleDateString("pt-BR") : "-"}</td>
+      <td><strong>${i.nome}</strong></td>
+      <td>${i.cidade || "-"}/${i.estado || "-"}</td>
+      <td>${i.whatsapp || "-"}</td>
+      <td>${i.email || "-"}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function filtrarDados(){
+  const termo = document.getElementById("inputBusca").value.trim().toLowerCase();
+  if(!termo){
+    dadosFiltrados = dadosGerais;
+  } else {
+    dadosFiltrados = dadosGerais.filter(i => {
+      const txt = `${i.nome} ${i.bairro} ${i.cidade} ${i.estado} ${i.whatsapp} ${i.email}`.toLowerCase();
+      return txt.indexOf(termo) !== -1;
+    });
+  }
+  renderTabela(dadosFiltrados);
+}
+
+function gerarPDF(){
+  if(dadosFiltrados.length === 0){
+    alert("Não existem registros para exportar.");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+
+  doc.setFillColor(11, 31, 58);
+  doc.rect(0, 0, 210, 30, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.text("CONSULTA INTELIGENTE — RELATÓRIO DE REGISTROS", 14, 18);
+  doc.setFontSize(10);
+  doc.text(`Estado(s): ${usuario.estados || "Geral"} | Total: ${dadosFiltrados.length} registro(s)`, 14, 25);
+
+  const colunas = ["Data", "Nome Completo", "Cidade/UF", "WhatsApp", "E-mail"];
+  const linhas = dadosFiltrados.map(r => [
+    r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
+    r.nome,
+    `${r.cidade || "-"}/${r.estado || "-"}`,
+    r.whatsapp || "-",
+    r.email || "-"
+  ]);
+
+  doc.autoTable({
+    startY: 35,
+    head: [colunas],
+    body: linhas,
+    theme: "striped",
+    headStyles: { fillColor: [11, 31, 58], textColor: [255, 255, 255], fontStyle: "bold" },
+    styles: { fontSize: 8, cellPadding: 3 }
+  });
+
+  doc.save(`Consulta_Relatorio_${new Date().toISOString().split("T")[0]}.pdf`);
+}
+
+function sair(){
+  localStorage.removeItem("usuarioConsulta");
+  window.location.href = "login.html";
+}
+
+carregarDados();
+</script>
 
 </body>
 </html>
