@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Consulta Inteligente</title>
+  <title>Consulta Inteligente | Artigo Um</title>
+  <meta name="theme-color" content="#0B1F3A">
   <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
     body{
       font-family:Arial, sans-serif;
       background:#f4f6f9;
@@ -12,53 +14,45 @@
       justify-content:center;
       align-items:center;
       min-height:100vh;
-      margin:0;
+      padding:20px;
     }
     .card{
       background:#fff;
       width:100%;
       max-width:420px;
-      border-radius:18px;
-      box-shadow:0 10px 25px rgba(0,0,0,.12);
-      padding:32px;
+      border-radius:22px;
+      box-shadow:0 12px 30px rgba(0,0,0,.12);
+      padding:36px 26px;
       text-align:center;
     }
-    h1{
-      color:#0B1F3A;
-      margin-bottom:10px;
-    }
-    p{
-      color:#555;
-      line-height:1.6;
-    }
+    .logo{ width:90px; height:auto; margin-bottom:16px; }
+    h1{ color:#0B1F3A; font-size:26px; margin-bottom:10px; }
+    p{ color:#555; font-size:15px; line-height:1.5; margin-bottom:24px; }
     .btn{
       display:block;
       width:100%;
-      padding:14px;
-      margin-top:16px;
-      border-radius:10px;
+      padding:15px;
+      border-radius:12px;
       text-decoration:none;
       color:white;
       font-weight:bold;
+      font-size:16px;
       background:#0B1F3A;
+      transition:background .2s;
     }
+    .btn:hover{ background:#13305c; }
   </style>
 </head>
 <body>
 
 <div class="card">
-
+  <img src="logo-a1.png" alt="Logo" class="logo" onerror="this.style.display='none'">
   <h1>Consulta Inteligente</h1>
-
   <p>
-    Aplicativo conectado diretamente à planilha oficial para consulta de contatos,
-    pesquisa e geração de relatórios.
+    Plataforma de acesso rápido para consulta de cadastros,
+    pesquisa em tempo real e geração de relatórios oficiais por Estado.
   </p>
-
-  <a class="btn" href="login.html">
-    Acessar Sistema
-  </a>
-
+  <a class="btn" href="login.html">Acessar Sistema</a>
 </div>
 
 </body>
