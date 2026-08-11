@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | Consulta Inteligente</title>
   <meta name="theme-color" content="#0B1F3A">
+
+  <!-- Força o navegador a ignorar o cache local -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <style>
     *{ margin:0; padding:0; box-sizing:border-box; }
     body{
@@ -64,11 +70,30 @@
   </form>
 
   <div class="msg-erro" id="msgErro"></div>
-  <a class="btn-voltar" href="./index.html">← Voltar à capa</a>
+  <a class="btn-voltar" href="./index.html?v=1.0.1">← Voltar à capa</a>
 </div>
 
 <script>
+// Constantes e Versão da Aplicação
+const VERSAO_APP = "1.0.1";
 const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBmOeeszv7_akRGbqtrx86RR6dyEWGkroF9T1vH3t-RVi9E-g/exec";
+
+// Desregistra Service Workers antigos e limpa caches armazenados no navegador
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => {
+    for (let registration of registrations) {
+      registration.unregister();
+    }
+  });
+}
+
+if ('caches' in window) {
+  caches.keys().then(names => {
+    for (let name of names) {
+      caches.delete(name);
+    }
+  });
+}
 
 async function executarLogin(e){
   if(e) e.preventDefault();
@@ -83,8 +108,8 @@ async function executarLogin(e){
   btn.innerText = "Autenticando...";
 
   try {
-    const url = `${API_URL}?login=1&email=${encodeURIComponent(email)}&senha=${encodeURIComponent(senha)}`;
-    const res = await fetch(url);
+    const url = `${API_URL}?login=1&email=${encodeURIComponent(email)}&senha=${encodeURIComponent(senha)}&_v=${VERSAO_APP}`;
+    const res = await fetch(url, { cache: "no-store" });
     const data = await res.json();
 
     if(data.status === "ok"){
@@ -94,7 +119,8 @@ async function executarLogin(e){
         estados: data.estados,
         token: data.token || ""
       }));
-      window.location.href = "./painel.html";
+      // Redireciona para o painel garantindo que abra a versão mais recente
+      window.location.href = `./painel.html?v=${VERSAO_APP}`;
     } else {
       msg.innerText = data.mensagem || "Credenciais inválidas.";
     }
