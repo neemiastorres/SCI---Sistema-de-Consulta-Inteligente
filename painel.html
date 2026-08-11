@@ -28,7 +28,7 @@
     .card{
       background:#fff;
       width:100%;
-      max-width:850px;
+      max-width:900px;
       border-radius:22px;
       box-shadow:0 12px 30px rgba(0,0,0,.12);
       padding:32px 24px;
@@ -42,15 +42,40 @@
     .stat-val{ font-size:26px; font-weight:bold; color:#0B1F3A; }
     .stat-lbl{ font-size:12px; color:#555; margin-top:2px; }
     
-    .search-box{ text-align:left; margin-bottom:16px; }
-    .search-box label{ display:block; font-weight:bold; color:#0B1F3A; margin-bottom:6px; font-size:13px; }
-    .search-box input{
-      width:100%; padding:14px; border:1px solid #ccc;
-      border-radius:10px; font-size:15px; outline:none;
+    /* Painel de Filtros Avançados */
+    .filters-grid{
+      display:grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap:12px;
+      text-align:left;
+      margin-bottom:20px;
+      background:#f8fafc;
+      padding:16px;
+      border-radius:14px;
+      border:1px solid #e2e8f0;
     }
-    .search-box input:focus{ border-color:#0B1F3A; }
-    
-    .table-container{ overflow-x:auto; margin-bottom:20px; border-radius:10px; border:1px solid #e0e0e0; }
+    @media (max-width:768px){
+      .filters-grid{ grid-template-columns:1fr; }
+    }
+    .filter-group label{
+      display:block;
+      font-weight:bold;
+      color:#0B1F3A;
+      margin-bottom:6px;
+      font-size:12px;
+    }
+    .filter-group input, .filter-group select{
+      width:100%;
+      padding:10px 12px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      font-size:14px;
+      outline:none;
+      background:#fff;
+    }
+    .filter-group input:focus, .filter-group select:focus{ border-color:#0B1F3A; }
+
+    .table-container{ overflow-x:auto; margin-bottom:16px; border-radius:10px; border:1px solid #e0e0e0; }
     table{ width:100%; border-collapse:collapse; font-size:13px; text-align:left; }
     th{ background:#0B1F3A; color:#fff; padding:12px 10px; white-space:nowrap; }
     td{ padding:12px 10px; border-bottom:1px solid #eee; white-space:nowrap; }
@@ -65,6 +90,32 @@
       background:#eef4ff;
       color:#0B1F3A;
     }
+
+    /* Controles de Paginação */
+    .pagination-container{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:20px;
+      padding:0 4px;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    .pagination-info{ font-size:13px; color:#555; font-weight:bold; }
+    .pagination-buttons{ display:flex; gap:8px; align-items:center; }
+    .btn-page{
+      padding:8px 16px;
+      border:1px solid #0B1F3A;
+      background:#fff;
+      color:#0B1F3A;
+      border-radius:8px;
+      font-weight:bold;
+      cursor:pointer;
+      font-size:13px;
+      transition:all .2s;
+    }
+    .btn-page:hover:not(:disabled){ background:#0B1F3A; color:#fff; }
+    .btn-page:disabled{ opacity:0.4; cursor:not-allowed; border-color:#ccc; }
 
     .btn{
       display:block; width:100%; border:none; border-radius:12px; padding:14px;
@@ -94,11 +145,33 @@
     </div>
   </div>
 
-  <div class="search-box">
-    <label for="inputBusca">Pesquisar por Nome, Celular, Cidade, Estado ou Status 2</label>
-    <input type="text" id="inputBusca" placeholder="Digite para buscar..." oninput="filtrarDados()">
+  <!-- Formulário com Filtros Específicos por Campo -->
+  <div class="filters-grid">
+    <div class="filter-group">
+      <label for="buscaNome">Buscar por Nome / Celular</label>
+      <input type="text" id="buscaNome" placeholder="Digite o nome..." oninput="aplicarFiltros()">
+    </div>
+    <div class="filter-group">
+      <label for="filtroEstado">Estado (UF)</label>
+      <select id="filtroEstado" onchange="aoMudarEstado()">
+        <option value="">Todos os Estados</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="filtroCidade">Cidade</label>
+      <select id="filtroCidade" onchange="aplicarFiltros()">
+        <option value="">Todas as Cidades</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label for="filtroStatus">Status 2</label>
+      <select id="filtroStatus" onchange="aplicarFiltros()">
+        <option value="">Todos os Status</option>
+      </select>
+    </div>
   </div>
 
+  <!-- Tabela de Resultados -->
   <div class="table-container">
     <table>
       <thead>
@@ -116,28 +189,48 @@
     </table>
   </div>
 
+  <!-- Barra de Paginação -->
+  <div class="pagination-container">
+    <div class="pagination-info">
+      Exibir 
+      <select id="itensPorPagina" onchange="mudarItensPorPagina()" style="padding:4px 8px; border-radius:6px;">
+        <option value="10" selected>10 por página</option>
+        <option value="25">25 por página</option>
+      </select>
+      | Exibindo <span id="lblInicio">0</span>-<span id="lblFim">0</span> de <span id="lblTotalFiltro">0</span>
+    </div>
+    <div class="pagination-buttons">
+      <button class="btn-page" id="btnAnt" onclick="paginaAnterior()">◄ Anterior</button>
+      <span id="lblPaginaAtual" style="font-size:13px; font-weight:bold;">Pág. 1 de 1</span>
+      <button class="btn-page" id="btnProx" onclick="proximaPagina()">Próximo ►</button>
+    </div>
+  </div>
+
   <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar e Imprimir Relatório em PDF</button>
-  <a class="btn btn-voltar" href="./index.html?v=1.0.1">Voltar à Capa</a>
+  <a class="btn btn-voltar" href="./index.html?v=1.0.2">Voltar à Capa</a>
   <button type="button" class="btn btn-sair" onclick="sair()">Sair do Sistema</button>
 </div>
 
 <script>
-const VERSAO_APP = "1.0.1";
+const VERSAO_APP = "1.0.2";
 const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBmOeeszv7_akRGbqtrx86RR6dyEWGkroF9T1vH3t-RVi9E-g/exec";
 
 const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
 if(!usuario){
   window.location.href = `./login.html?v=${VERSAO_APP}`;
 } else {
-  document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Filtro: ${usuario.estados || "Geral"}`;
+  document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Permissão: ${usuario.estados || "Geral"}`;
 }
 
 let dadosGerais = [];
 let dadosFiltrados = [];
 
+// Variáveis de Paginação
+let paginaAtual = 1;
+let itensPorPagina = 10;
+
 async function carregarDados(){
   try {
-    // Parâmetro _v força a requisição a não buscar do cache HTTP
     const res = await fetch(`${API_URL}?token=${encodeURIComponent(usuario.token || "")}&_v=${VERSAO_APP}`, { cache: "no-store" });
     const data = await res.json();
 
@@ -145,10 +238,10 @@ async function carregarDados(){
       dadosGerais = data.resultados || [];
       dadosFiltrados = dadosGerais;
       
-      document.getElementById("totalCadastros").innerText = dadosGerais.length;
       document.getElementById("ultimoCadastro").innerText = new Date().toLocaleDateString("pt-BR");
       
-      renderTabela(dadosFiltrados);
+      populaOpcoesFiltros();
+      aplicarFiltros();
     } else {
       document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${data.mensagem || "Erro ao carregar dados."}</td></tr>`;
     }
@@ -157,10 +250,103 @@ async function carregarDados(){
   }
 }
 
+// Preenche os selects de Estado, Cidade e Status com base nos dados reais
+function populaOpcoesFiltros(){
+  const selectUF = document.getElementById("filtroEstado");
+  const selectStatus = document.getElementById("filtroStatus");
+
+  const estadosUnicos = [...new Set(dadosGerais.map(i => (i.estado || "").trim().toUpperCase()))].filter(e => e && e !== "-").sort();
+  const statusUnicos = [...new Set(dadosGerais.map(i => (i.status2 || "").trim()))].filter(s => s && s !== "-").sort();
+
+  selectUF.innerHTML = '<option value="">Todos os Estados</option>';
+  estadosUnicos.forEach(uf => {
+    selectUF.innerHTML += `<option value="${uf}">${uf}</option>`;
+  });
+
+  selectStatus.innerHTML = '<option value="">Todos os Status</option>';
+  statusUnicos.forEach(st => {
+    selectStatus.innerHTML += `<option value="${st}">${st}</option>`;
+  });
+
+  populaCidades();
+}
+
+// Atualiza a lista de cidades dependendo do Estado selecionado
+function populaCidades(){
+  const selectUF = document.getElementById("filtroEstado").value;
+  const selectCidade = document.getElementById("filtroCidade");
+
+  let dadosParaCidades = dadosGerais;
+  if(selectUF){
+    dadosParaCidades = dadosGerais.filter(i => (i.estado || "").trim().toUpperCase() === selectUF);
+  }
+
+  const cidadesUnicas = [...new Set(dadosParaCidades.map(i => (i.cidade || "").trim()))].filter(c => c && c !== "-").sort();
+
+  selectCidade.innerHTML = '<option value="">Todas as Cidades</option>';
+  cidadesUnicas.forEach(c => {
+    selectCidade.innerHTML += `<option value="${c}">${c}</option>`;
+  });
+}
+
+function aoMudarEstado(){
+  populaCidades();
+  aplicarFiltros();
+}
+
+// Filtra combinando Nome/Celular + Estado + Cidade + Status 2
+function aplicarFiltros(){
+  const termoNome = document.getElementById("buscaNome").value.trim().toLowerCase();
+  const ufSel = document.getElementById("filtroEstado").value;
+  const cidadeSel = document.getElementById("filtroCidade").value.toLowerCase();
+  const statusSel = document.getElementById("filtroStatus").value.toLowerCase();
+
+  dadosFiltrados = dadosGerais.filter(i => {
+    const nome = (i.nome || "").toLowerCase();
+    const celular = (i.whatsapp || i.celular || "").toLowerCase();
+    const estado = (i.estado || "").toUpperCase().trim();
+    const cidade = (i.cidade || "").toLowerCase().trim();
+    const status = (i.status2 || "").toLowerCase().trim();
+
+    const bateNome = !termoNome || nome.includes(termoNome) || celular.includes(termoNome);
+    const bateUF = !ufSel || estado === ufSel;
+    const bateCidade = !cidadeSel || cidade === cidadeSel;
+    const bateStatus = !statusSel || status === statusSel;
+
+    return bateNome && bateUF && bateCidade && bateStatus;
+  });
+
+  paginaAtual = 1;
+  renderizarPagina();
+}
+
+// Renderiza apenas os 10 ou 25 itens da página atual
+function renderizarPagina(){
+  const total = dadosFiltrados.length;
+  document.getElementById("totalCadastros").innerText = total;
+  document.getElementById("lblTotalFiltro").innerText = total;
+
+  const totalPaginas = Math.ceil(total / itensPorPagina) || 1;
+  if(paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+  const inicio = (paginaAtual - 1) * itensPorPagina;
+  const fim = Math.min(inicio + itensPorPagina, total);
+
+  document.getElementById("lblInicio").innerText = total === 0 ? 0 : inicio + 1;
+  document.getElementById("lblFim").innerText = fim;
+  document.getElementById("lblPaginaAtual").innerText = `Pág. ${paginaAtual} de ${totalPaginas}`;
+
+  document.getElementById("btnAnt").disabled = (paginaAtual === 1);
+  document.getElementById("btnProx").disabled = (paginaAtual >= totalPaginas || total === 0);
+
+  const listaPagina = dadosFiltrados.slice(inicio, fim);
+  renderTabela(listaPagina);
+}
+
 function renderTabela(lista){
   const tbody = document.getElementById("tabelaCorpo");
   if(lista.length === 0){
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#777;">Nenhum registro encontrado.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#777;">Nenhum registro localizado com estes filtros.</td></tr>`;
     return;
   }
   tbody.innerHTML = "";
@@ -177,20 +363,28 @@ function renderTabela(lista){
   });
 }
 
-function filtrarDados(){
-  const termo = document.getElementById("inputBusca").value.trim().toLowerCase();
-  if(!termo){
-    dadosFiltrados = dadosGerais;
-  } else {
-    dadosFiltrados = dadosGerais.filter(i => {
-      const txt = `${i.nome} ${i.whatsapp} ${i.celular} ${i.cidade} ${i.estado} ${i.status2}`.toLowerCase();
-      return txt.indexOf(termo) !== -1;
-    });
+function paginaAnterior(){
+  if(paginaAtual > 1){
+    paginaAtual--;
+    renderizarPagina();
   }
-  document.getElementById("totalCadastros").innerText = dadosFiltrados.length;
-  renderTabela(dadosFiltrados);
 }
 
+function proximaPagina(){
+  const totalPaginas = Math.ceil(dadosFiltrados.length / itensPorPagina);
+  if(paginaAtual < totalPaginas){
+    paginaAtual++;
+    renderizarPagina();
+  }
+}
+
+function mudarItensPorPagina(){
+  itensPorPagina = parseInt(document.getElementById("itensPorPagina").value);
+  paginaAtual = 1;
+  renderizarPagina();
+}
+
+// O PDF sempre exporta TODOS os contatos que passaram pelo filtro atual
 function gerarPDF(){
   if(dadosFiltrados.length === 0){
     alert("Não existem registros selecionados para gerar o relatório.");
@@ -208,7 +402,7 @@ function gerarPDF(){
   doc.text("RELATÓRIO DE CONSULTA E STATUS", 14, 16);
   
   doc.setFontSize(9);
-  doc.text(`Emissão: ${new Date().toLocaleDateString("pt-BR")} | Total de Registros: ${dadosFiltrados.length}`, 14, 23);
+  doc.text(`Emissão: ${new Date().toLocaleDateString("pt-BR")} | Total de Registros Filtrados: ${dadosFiltrados.length}`, 14, 23);
 
   const colunas = ["Nome Completo", "Celular", "Cidade", "Estado", "Status 2"];
   const linhas = dadosFiltrados.map(r => [
