@@ -6,11 +6,12 @@
   <title>Painel | Consulta Inteligente</title>
   <meta name="theme-color" content="#0B1F3A">
 
-  <!-- Desativa o cache local -->
+  <!-- Força a invalidação de cache no navegador -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 
+  <!-- Bibliotecas de relatórios em PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
@@ -69,7 +70,7 @@
       margin-bottom: 24px; 
     }
     
-    /* Grid de Estatísticas */
+    /* Grid de Indicadores */
     .stats-grid{ 
       display: grid; 
       grid-template-columns: 1fr 1fr; 
@@ -230,7 +231,7 @@
       border-color: #e2e8f0; 
     }
 
-    /* Botões de Ação Clean */
+    /* Botões Principais */
     .btn{
       display: block; 
       width: 100%; 
@@ -280,14 +281,15 @@
 
 <div class="card">
 
-   <!-- Área da Logo do Partido -->
-<div class="logo-container">
-  <img src="./logoapp.png" alt="Logo" class="logo-partido" onerror="this.style.display='none'">
-</div>
+  <!-- Logo do Partido -->
+  <div class="logo-container">
+    <img src="logoapp.png" alt="Logo" class="logo-partido" onerror="this.style.display='none'">
+  </div>
 
   <h1>Consulta Inteligente</h1>
   <div class="subtitle" id="infoUsuario">Carregando dados...</div>
 
+  <!-- Indicadores -->
   <div class="stats-grid">
     <div class="stat-box">
       <div class="stat-val" id="totalCadastros">--</div>
@@ -299,7 +301,7 @@
     </div>
   </div>
 
-  <!-- Painel de Filtros -->
+  <!-- Filtros -->
   <div class="filters-grid">
     <div class="filter-group">
       <label for="buscaNome">Buscar por Nome / Celular</label>
@@ -360,19 +362,22 @@
     </div>
   </div>
 
-  <!-- Botões Principais -->
+  <!-- Ações -->
   <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar e Imprimir Relatório em PDF</button>
-  <a class="btn btn-voltar" href="./index.html">Voltar à Capa</a>
+  <a class="btn btn-voltar" href="index.html">Voltar à Capa</a>
   <button type="button" class="btn btn-sair" onclick="sair()">Sair do Sistema</button>
 </div>
 
 <script>
-const VERSAO_APP = "1.0.3";
+const VERSAO_APP = "1.0.5";
 const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBmOeeszv7_akRGbqtrx86RR6dyEWGkroF9T1vH3t-RVi9E-g/exec";
 
+// Autenticação prévia local
 const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
-if(!usuario){
-  window.location.href = "./login.html";
+
+if(!usuario || !usuario.email){
+  localStorage.removeItem("usuarioConsulta");
+  window.location.href = "login.html";
 } else {
   document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Permissão: ${usuario.estados || "Geral"}`;
 }
@@ -385,7 +390,8 @@ let itensPorPagina = 10;
 
 async function carregarDados(){
   try {
-    const res = await fetch(`${API_URL}?token=${encodeURIComponent(usuario.token || "")}`, { cache: "no-store" });
+    const tokenSeguro = encodeURIComponent(usuario ? usuario.token || "" : "");
+    const res = await fetch(`${API_URL}?token=${tokenSeguro}&_v=${VERSAO_APP}`, { cache: "no-store" });
     const data = await res.json();
 
     if(data.status === "ok"){
@@ -397,10 +403,14 @@ async function carregarDados(){
       populaOpcoesFiltros();
       aplicarFiltros();
     } else {
+      if(data.mensagem && (data.mensagem.includes("sessão") || data.mensagem.includes("token"))){
+        sair();
+        return;
+      }
       document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${data.mensagem || "Erro ao carregar dados."}</td></tr>`;
     }
   } catch(e) {
-    document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Erro ao conectar com a planilha.</td></tr>`;
+    document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Erro de conexão com a planilha. Faça login novamente.</td></tr>`;
   }
 }
 
@@ -592,7 +602,7 @@ function gerarPDF(){
 
 function sair(){
   localStorage.removeItem("usuarioConsulta");
-  window.location.href = "./login.html";
+  window.location.href = "login.html";
 }
 
 carregarDados();
