@@ -64,7 +64,7 @@
   </form>
 
   <div class="msg-erro" id="msgErro"></div>
-  <a class="btn-voltar" href="index.html">← Voltar à capa</a>
+  <a class="btn-voltar" href="./index.html">← Voltar à capa</a>
 </div>
 
 <script>
@@ -94,7 +94,7 @@ async function executarLogin(e){
         estados: data.estados,
         token: data.token || ""
       }));
-      window.location.href = "painel.html";
+      window.location.href = "./painel.html";
     } else {
       msg.innerText = data.mensagem || "Credenciais inválidas.";
     }
