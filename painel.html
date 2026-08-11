@@ -6,6 +6,11 @@
   <title>Painel | Consulta Inteligente</title>
   <meta name="theme-color" content="#0B1F3A">
 
+  <!-- Desativa o cache local -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
@@ -112,16 +117,17 @@
   </div>
 
   <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar e Imprimir Relatório em PDF</button>
-  <a class="btn btn-voltar" href="./index.html">Voltar à Capa</a>
+  <a class="btn btn-voltar" href="./index.html?v=1.0.1">Voltar à Capa</a>
   <button type="button" class="btn btn-sair" onclick="sair()">Sair do Sistema</button>
 </div>
 
 <script>
+const VERSAO_APP = "1.0.1";
 const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBmOeeszv7_akRGbqtrx86RR6dyEWGkroF9T1vH3t-RVi9E-g/exec";
 
 const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
 if(!usuario){
-  window.location.href = "./login.html";
+  window.location.href = `./login.html?v=${VERSAO_APP}`;
 } else {
   document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Filtro: ${usuario.estados || "Geral"}`;
 }
@@ -131,7 +137,8 @@ let dadosFiltrados = [];
 
 async function carregarDados(){
   try {
-    const res = await fetch(`${API_URL}?token=${encodeURIComponent(usuario.token || "")}`);
+    // Parâmetro _v força a requisição a não buscar do cache HTTP
+    const res = await fetch(`${API_URL}?token=${encodeURIComponent(usuario.token || "")}&_v=${VERSAO_APP}`, { cache: "no-store" });
     const data = await res.json();
 
     if(data.status === "ok"){
@@ -242,7 +249,7 @@ function gerarPDF(){
 
 function sair(){
   localStorage.removeItem("usuarioConsulta");
-  window.location.href = "./login.html";
+  window.location.href = `./login.html?v=${VERSAO_APP}`;
 }
 
 carregarDados();
