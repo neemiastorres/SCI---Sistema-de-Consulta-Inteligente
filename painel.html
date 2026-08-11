@@ -6,6 +6,7 @@
   <title>Painel | Consulta Inteligente</title>
   <meta name="theme-color" content="#0B1F3A">
 
+  <!-- Bibliotecas para geração e impressão do PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
@@ -23,7 +24,7 @@
     .card{
       background:#fff;
       width:100%;
-      max-width:760px;
+      max-width:850px;
       border-radius:22px;
       box-shadow:0 12px 30px rgba(0,0,0,.12);
       padding:32px 24px;
@@ -31,10 +32,12 @@
     }
     h1{ color:#0B1F3A; font-size:26px; margin-bottom:4px; }
     .subtitle{ color:#666; font-size:14px; margin-bottom:20px; }
+    
     .stats-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; }
     .stat-box{ background:#eef4ff; border-radius:14px; padding:16px; }
     .stat-val{ font-size:26px; font-weight:bold; color:#0B1F3A; }
     .stat-lbl{ font-size:12px; color:#555; margin-top:2px; }
+    
     .search-box{ text-align:left; margin-bottom:16px; }
     .search-box label{ display:block; font-weight:bold; color:#0B1F3A; margin-bottom:6px; font-size:13px; }
     .search-box input{
@@ -42,11 +45,23 @@
       border-radius:10px; font-size:15px; outline:none;
     }
     .search-box input:focus{ border-color:#0B1F3A; }
+    
     .table-container{ overflow-x:auto; margin-bottom:20px; border-radius:10px; border:1px solid #e0e0e0; }
     table{ width:100%; border-collapse:collapse; font-size:13px; text-align:left; }
     th{ background:#0B1F3A; color:#fff; padding:12px 10px; white-space:nowrap; }
     td{ padding:12px 10px; border-bottom:1px solid #eee; white-space:nowrap; }
     tr:nth-child(even){ background:#f9fbfd; }
+    
+    .status-badge{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:6px;
+      font-size:11px;
+      font-weight:bold;
+      background:#eef4ff;
+      color:#0B1F3A;
+    }
+
     .btn{
       display:block; width:100%; border:none; border-radius:12px; padding:14px;
       font-size:15px; font-weight:bold; cursor:pointer; text-decoration:none;
@@ -61,34 +76,34 @@
 <body>
 
 <div class="card">
-  <h1>Painel de Consulta</h1>
-  <div class="subtitle" id="infoUsuario">Carregando dados do usuário...</div>
+  <h1>Consulta Inteligente</h1>
+  <div class="subtitle" id="infoUsuario">Carregando dados...</div>
 
   <div class="stats-grid">
     <div class="stat-box">
       <div class="stat-val" id="totalCadastros">--</div>
-      <div class="stat-lbl">Total de Cadastrados</div>
+      <div class="stat-lbl">Registros Encontrados</div>
     </div>
     <div class="stat-box">
       <div class="stat-val" id="ultimoCadastro">--</div>
-      <div class="stat-lbl">Último Registro</div>
+      <div class="stat-lbl">Última Atualização</div>
     </div>
   </div>
 
   <div class="search-box">
-    <label for="inputBusca">Pesquisar por Nome, Bairro, Cidade, Estado ou WhatsApp</label>
-    <input type="text" id="inputBusca" placeholder="Digite para filtrar..." oninput="filtrarDados()">
+    <label for="inputBusca">Pesquisar por Nome, Celular, Cidade, Estado ou Status 2</label>
+    <input type="text" id="inputBusca" placeholder="Digite para buscar..." oninput="filtrarDados()">
   </div>
 
   <div class="table-container">
     <table>
       <thead>
         <tr>
-          <th>Data</th>
           <th>Nome</th>
-          <th>Cidade/UF</th>
-          <th>WhatsApp</th>
-          <th>E-mail</th>
+          <th>Celular</th>
+          <th>Cidade</th>
+          <th>Estado</th>
+          <th>Status 2</th>
         </tr>
       </thead>
       <tbody id="tabelaCorpo">
@@ -97,7 +112,7 @@
     </table>
   </div>
 
-  <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar Relatório em PDF</button>
+  <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar e Imprimir Relatório em PDF</button>
   <a class="btn btn-voltar" href="index.html">Voltar à Capa</a>
   <button type="button" class="btn btn-sair" onclick="sair()">Sair do Sistema</button>
 </div>
@@ -109,7 +124,7 @@ const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
 if(!usuario){
   window.location.href = "login.html";
 } else {
-  document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Estado(s): ${usuario.estados || "Geral"}`;
+  document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Filtro: ${usuario.estados || "Geral"}`;
 }
 
 let dadosGerais = [];
@@ -124,11 +139,13 @@ async function carregarDados(){
     if(data.status === "ok"){
       dadosGerais = data.resultados || [];
       dadosFiltrados = dadosGerais;
-      document.getElementById("totalCadastros").innerText = data.total || dadosGerais.length;
-      document.getElementById("ultimoCadastro").innerText = data.ultimo ? new Date(data.ultimo).toLocaleDateString("pt-BR") : "--";
+      
+      document.getElementById("totalCadastros").innerText = dadosGerais.length;
+      document.getElementById("ultimoCadastro").innerText = new Date().toLocaleDateString("pt-BR");
+      
       renderTabela(dadosFiltrados);
     } else {
-      document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${data.mensagem || "Erro ao carregar registros."}</td></tr>`;
+      document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${data.mensagem || "Erro ao carregar dados."}</td></tr>`;
     }
   } catch(e) {
     document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Erro ao conectar com a planilha.</td></tr>`;
@@ -145,11 +162,11 @@ function renderTabela(lista){
   lista.forEach(i => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${i.data ? new Date(i.data).toLocaleDateString("pt-BR") : "-"}</td>
-      <td><strong>${i.nome}</strong></td>
-      <td>${i.cidade || "-"}/${i.estado || "-"}</td>
-      <td>${i.whatsapp || "-"}</td>
-      <td>${i.email || "-"}</td>
+      <td><strong>${i.nome || "-"}</strong></td>
+      <td>${i.whatsapp || i.celular || i.telefone || "-"}</td>
+      <td>${i.cidade || "-"}</td>
+      <td>${i.estado || "-"}</td>
+      <td><span class="status-badge">${i.status2 || i.status || "Pendente"}</span></td>
     `;
     tbody.appendChild(tr);
   });
@@ -161,48 +178,73 @@ function filtrarDados(){
     dadosFiltrados = dadosGerais;
   } else {
     dadosFiltrados = dadosGerais.filter(i => {
-      const txt = `${i.nome} ${i.bairro} ${i.cidade} ${i.estado} ${i.whatsapp} ${i.email}`.toLowerCase();
+      const txt = `${i.nome} ${i.whatsapp} ${i.celular} ${i.cidade} ${i.estado} ${i.status2}`.toLowerCase();
       return txt.indexOf(termo) !== -1;
     });
   }
+  document.getElementById("totalCadastros").innerText = dadosFiltrados.length;
   renderTabela(dadosFiltrados);
 }
 
+// GERAÇÃO DO PDF PRONTO PARA IMPRESSÃO
 function gerarPDF(){
   if(dadosFiltrados.length === 0){
-    alert("Não existem registros para exportar.");
+    alert("Não existem registros selecionados para gerar o relatório.");
     return;
   }
+
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF("p", "mm", "a4");
 
-  doc.setFillColor(11, 31, 58);
-  doc.rect(0, 0, 210, 30, "F");
+  // Cabeçalho Oficial
+  doc.setFillColor(11, 31, 58); // Azul Marinho
+  doc.rect(0, 0, 210, 28, "F");
+  
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16);
-  doc.text("CONSULTA INTELIGENTE — RELATÓRIO DE REGISTROS", 14, 18);
-  doc.setFontSize(10);
-  doc.text(`Estado(s): ${usuario.estados || "Geral"} | Total: ${dadosFiltrados.length} registro(s)`, 14, 25);
+  doc.setFontSize(15);
+  doc.text("RELATÓRIO DE CONSULTA E STATUS", 14, 16);
+  
+  doc.setFontSize(9);
+  doc.text(`Emissão: ${new Date().toLocaleDateString("pt-BR")} | Total de Registros: ${dadosFiltrados.length}`, 14, 23);
 
-  const colunas = ["Data", "Nome Completo", "Cidade/UF", "WhatsApp", "E-mail"];
+  // Mapeamento exato das colunas solicitadas
+  const colunas = ["Nome Completo", "Celular", "Cidade", "Estado", "Status 2"];
   const linhas = dadosFiltrados.map(r => [
-    r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
-    r.nome,
-    `${r.cidade || "-"}/${r.estado || "-"}`,
-    r.whatsapp || "-",
-    r.email || "-"
+    r.nome || "-",
+    r.whatsapp || r.celular || r.telefone || "-",
+    r.cidade || "-",
+    r.estado || "-",
+    r.status2 || r.status || "Pendente"
   ]);
 
+  // Configuração da Tabela em PDF
   doc.autoTable({
-    startY: 35,
+    startY: 32,
     head: [colunas],
     body: linhas,
     theme: "striped",
-    headStyles: { fillColor: [11, 31, 58], textColor: [255, 255, 255], fontStyle: "bold" },
-    styles: { fontSize: 8, cellPadding: 3 }
+    headStyles: { 
+      fillColor: [11, 31, 58], 
+      textColor: [255, 255, 255], 
+      fontStyle: "bold",
+      fontSize: 9 
+    },
+    styles: { 
+      fontSize: 8, 
+      cellPadding: 3, 
+      valign: "middle" 
+    },
+    columnStyles: {
+      0: { cellWidth: 55 }, // Nome
+      1: { cellWidth: 35 }, // Celular
+      2: { cellWidth: 40 }, // Cidade
+      3: { cellWidth: 20 }, // Estado
+      4: { cellWidth: 35 }  // Status 2
+    }
   });
 
-  doc.save(`Consulta_Relatorio_${new Date().toISOString().split("T")[0]}.pdf`);
+  // Salva o PDF para visualização e impressão
+  doc.save(`Relatorio_Consulta_${new Date().toISOString().split("T")[0]}.pdf`);
 }
 
 function sair(){
