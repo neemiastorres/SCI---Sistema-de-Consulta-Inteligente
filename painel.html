@@ -100,6 +100,42 @@
       margin-top: 4px; 
     }
     
+    /* Header do Painel de Filtros com Botão Limpar */
+    .filters-header{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+
+    .filters-title{
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-limpar{
+      background: none;
+      border: none;
+      color: #0284c7;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background .2s;
+    }
+
+    .btn-limpar:hover{
+      background: #e0f2fe;
+    }
+
     /* Painel de Filtros Avançados */
     .filters-grid{
       display: grid;
@@ -148,6 +184,8 @@
       margin-bottom: 18px; 
       border-radius: 12px; 
       border: 1px solid #e2e8f0; 
+      min-height: 220px;
+      position: relative;
     }
 
     table{ 
@@ -182,6 +220,32 @@
       font-weight: 700;
       background: #e0f2fe;
       color: #0369a1;
+    }
+
+    /* Animação do Spinner de Carregamento */
+    .loading-box{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      gap: 12px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .spinner{
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #0284c7;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin{
+      to { transform: rotate(360deg); }
     }
 
     /* Controles de Paginação */
@@ -301,6 +365,12 @@
     </div>
   </div>
 
+  <!-- Header dos Filtros com Botão de Limpar -->
+  <div class="filters-header">
+    <span class="filters-title">Filtros de Pesquisa</span>
+    <button type="button" class="btn-limpar" onclick="limparFiltros()">↺ Limpar Filtros</button>
+  </div>
+
   <!-- Filtros -->
   <div class="filters-grid">
     <div class="filter-group">
@@ -340,7 +410,14 @@
         </tr>
       </thead>
       <tbody id="tabelaCorpo">
-        <tr><td colspan="5" style="text-align:center; color:#64748b;">Carregando registros...</td></tr>
+        <tr>
+          <td colspan="5">
+            <div class="loading-box">
+              <div class="spinner"></div>
+              <span>Carregando registros da planilha...</span>
+            </div>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -369,7 +446,7 @@
 </div>
 
 <script>
-const VERSAO_APP = "1.0.5";
+const VERSAO_APP = "1.0.6";
 const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBmOeeszv7_akRGbqtrx86RR6dyEWGkroF9T1vH3t-RVi9E-g/exec";
 
 // Autenticação prévia local
@@ -389,6 +466,7 @@ let paginaAtual = 1;
 let itensPorPagina = 10;
 
 async function carregarDados(){
+  exibirSpinner();
   try {
     const tokenSeguro = encodeURIComponent(usuario ? usuario.token || "" : "");
     const res = await fetch(`${API_URL}?token=${tokenSeguro}&_v=${VERSAO_APP}`, { cache: "no-store" });
@@ -407,11 +485,24 @@ async function carregarDados(){
         sair();
         return;
       }
-      document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${data.mensagem || "Erro ao carregar dados."}</td></tr>`;
+      document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">${data.mensagem || "Erro ao carregar dados."}</td></tr>`;
     }
   } catch(e) {
-    document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Erro de conexão com a planilha. Faça login novamente.</td></tr>`;
+    document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">Erro de conexão com a planilha. Faça login novamente.</td></tr>`;
   }
+}
+
+function exibirSpinner(){
+  document.getElementById("tabelaCorpo").innerHTML = `
+    <tr>
+      <td colspan="5">
+        <div class="loading-box">
+          <div class="spinner"></div>
+          <span>Carregando registros da planilha...</span>
+        </div>
+      </td>
+    </tr>
+  `;
 }
 
 function populaOpcoesFiltros(){
@@ -481,6 +572,15 @@ function aplicarFiltros(){
   renderizarPagina();
 }
 
+// Reseta todos os filtros para o estado inicial
+function limparFiltros(){
+  document.getElementById("buscaNome").value = "";
+  document.getElementById("filtroEstado").value = "";
+  document.getElementById("filtroStatus").value = "";
+  populaCidades();
+  aplicarFiltros();
+}
+
 function renderizarPagina(){
   const total = dadosFiltrados.length;
   document.getElementById("totalCadastros").innerText = total;
@@ -506,7 +606,7 @@ function renderizarPagina(){
 function renderTabela(lista){
   const tbody = document.getElementById("tabelaCorpo");
   if(lista.length === 0){
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b;">Nenhum registro localizado com estes filtros.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">Nenhum registro localizado com estes filtros.</td></tr>`;
     return;
   }
   tbody.innerHTML = "";
