@@ -3,16 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Artigo Um | Cadastro & Consulta</title>
+  <title>Cadastro Geral | Artigo Um</title>
   <meta name="theme-color" content="#0B1F3A">
 
-  <!-- Manifest e PWA -->
+  <!-- Configuração do Manifesto de PWA e Ícones para Celular / Navegador -->
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/png" sizes="32x32" href="logoapp.png">
   <link rel="icon" type="image/png" sizes="16x16" href="logoapp.png">
   <link rel="apple-touch-icon" sizes="180x180" href="logoapp.png">
+  <meta name="apple-mobile-web-app-title" content="Artigo Um">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-  <!-- Sem Cache -->
+  <!-- Invalidação de cache local -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
@@ -36,12 +39,13 @@
       width: 100%;
       max-width: 420px;
       border-radius: 24px;
-      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
-      padding: 40px 28px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      padding: 40px 30px;
       text-align: center;
       border: 1px solid #e2e8f0;
     }
 
+    /* Container e Ajuste da Logo na Capa */
     .logo-container{
       display: flex;
       justify-content: center;
@@ -57,17 +61,19 @@
     }
 
     h1{ 
-      color: #0f172a; 
+      color: #0B1F3A; 
       font-size: 26px; 
       font-weight: 700;
-      margin-bottom: 8px; 
+      letter-spacing: -0.5px;
+      margin-bottom: 10px; 
     }
 
     p{ 
       color: #64748b; 
-      font-size: 14px; 
-      line-height: 1.5; 
-      margin-bottom: 24px; 
+      font-size: 15px; 
+      line-height: 1.6; 
+      margin-bottom: 28px; 
+      font-weight: 400;
     }
 
     .btn-group{
@@ -79,44 +85,58 @@
     .btn{
       display: block;
       width: 100%;
-      padding: 15px;
+      padding: 16px;
       border-radius: 12px;
       text-decoration: none;
       font-weight: 800;
-      font-size: 15px;
+      font-size: 16px;
       transition: all .2s ease;
       text-align: center;
       border: none;
       cursor: pointer;
     }
 
+    /* Botão Principal Verde-Limão */
     .btn-cadastro{
-      background: #84cc16;
-      color: #0f172a;
-      box-shadow: 0 4px 14px rgba(132, 204, 22, 0.35);
+      background: #7ED957;
+      color: #0B1F3A;
+      box-shadow: 0 4px 14px rgba(126, 217, 87, 0.35);
     }
-    .btn-cadastro:hover{ background: #65a30d; color: #fff; }
 
+    .btn-cadastro:hover{ 
+      background: #6BC74A; 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(107, 199, 74, 0.45);
+    }
+
+    /* Botão Secundário de Documentos */
     .btn-docs{
-      background: #38bdf8;
-      color: #0f172a;
+      background: #e2e8f0;
+      color: #0B1F3A;
     }
-    .btn-docs:hover{ background: #0284c7; color: #fff; }
 
+    .btn-docs:hover{
+      background: #cbd5e1;
+    }
+
+    /* Botão Escuro para Login do Painel */
     .btn-login{
-      background: #0f172a;
+      background: #0B1F3A;
       color: #ffffff;
     }
-    .btn-login:hover{ background: #1e293b; }
 
-    /* Modal de Documentos */
+    .btn-login:hover{
+      background: #13305c;
+    }
+
+    /* Modal de Documentos & Downloads */
     .modal-overlay{
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(3px);
-      z-index: 999;
+      inset: 0;
+      background: rgba(11, 31, 58, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
       justify-content: center;
       align-items: center;
       padding: 20px;
@@ -125,7 +145,7 @@
     .modal-content{
       background: #ffffff;
       width: 100%;
-      max-width: 440px;
+      max-width: 420px;
       max-height: 80vh;
       border-radius: 20px;
       padding: 24px;
@@ -139,14 +159,14 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 2px solid #f1f5f9;
       padding-bottom: 12px;
     }
 
-    .modal-header h2{ font-size: 18px; color: #0f172a; }
+    .modal-header h2{ font-size: 18px; color: #0B1F3A; font-weight: 700; }
 
     .btn-fechar{
-      background: none; border: none; font-size: 24px; color: #777; cursor: pointer; font-weight: bold;
+      background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer; font-weight: bold;
     }
 
     .docs-list{
@@ -164,7 +184,7 @@
       padding: 14px;
     }
 
-    .doc-item-title{ font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    .doc-item-title{ font-size: 14px; font-weight: 700; color: #0B1F3A; margin-bottom: 4px; }
     .doc-item-desc{ font-size: 12px; color: #64748b; margin-bottom: 10px; line-height: 1.4; }
 
     .doc-actions{ display: flex; gap: 8px; }
@@ -183,17 +203,18 @@
 
 <div class="card">
 
+  <!-- Logo na Capa -->
   <div class="logo-container">
-    <img src="logoapp.png" alt="Logo" class="logo-partido" onerror="this.src='logo-a1.png'">
+    <img src="logo-a1.png" alt="Logo Artigo Um" class="logo-partido" onerror="this.src='logoapp.png'">
   </div>
 
-  <h1>Artigo Um</h1>
+  <h1>Cadastro Geral</h1>
   <p>
-    Plataforma oficial de cadastro geral, biblioteca de documentos e consulta restrita.
+    Plataforma oficial do Artigo Um para cadastramento geral, consulta de documentos públicos e acesso ao painel.
   </p>
 
   <div class="btn-group">
-    <a class="btn btn-cadastro" href="cadastro.html">📝 Fazer Meu Cadastro</a>
+    <a class="btn btn-cadastro" href="cadastro.html">📝 Preencher Cadastro Geral</a>
     <button type="button" class="btn btn-docs" onclick="abrirModalDocs()">📁 Documentos & Downloads</button>
     <a class="btn btn-login" href="login.html">🔒 Área Administrativa</a>
   </div>
@@ -204,7 +225,7 @@
 <div class="modal-overlay" id="modalDocs">
   <div class="modal-content">
     <div class="modal-header">
-      <h2>📁 Documentos Disponíveis</h2>
+      <h2>📁 Biblioteca de Documentos</h2>
       <button class="btn-fechar" onclick="fecharModalDocs()">&times;</button>
     </div>
     <div class="docs-list" id="listaDocs">
@@ -239,7 +260,7 @@ async function carregarDocumentosDrive(){
         container.innerHTML += `
           <div class="doc-item">
             <div class="doc-item-title">📄 ${doc.titulo}</div>
-            <div class="doc-item-desc">${doc.descricao || "Documento oficial"}</div>
+            <div class="doc-item-desc">${doc.descricao || "Documento oficial disponível para consulta."}</div>
             <div class="doc-actions">
               <a href="${doc.viewUrl}" target="_blank" class="btn-action btn-view">👁 Visualizar</a>
               <a href="${doc.downloadUrl}" target="_blank" class="btn-action btn-down">⬇ Baixar</a>
@@ -248,10 +269,10 @@ async function carregarDocumentosDrive(){
         `;
       });
     } else {
-      container.innerHTML = '<div class="spinner-modal">Nenhum documento disponível no momento.</div>';
+      container.innerHTML = '<div class="spinner-modal">Nenhum documento cadastrado no momento.</div>';
     }
   } catch(e) {
-    container.innerHTML = '<div class="spinner-modal" style="color:red;">Erro ao conectar com a biblioteca.</div>';
+    container.innerHTML = '<div class="spinner-modal" style="color:red;">Erro ao conectar com a base de documentos.</div>';
   }
 }
 </script>
