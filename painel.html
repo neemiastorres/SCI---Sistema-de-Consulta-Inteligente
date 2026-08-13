@@ -1,721 +1,526 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel | Consulta Inteligente</title>
+  <meta name="theme-color" content="#0B1F3A">
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Força a invalidação de cache no navegador -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
 
-<title>Artigo Um | Painel Administrativo</title>
+  <!-- Bibliotecas de relatórios em PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
-<meta name="theme-color" content="#0B1F3A">
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    
+    body{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+      color: #1e293b;
+    }
 
-<!-- Força a invalidação de cache no navegador -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+    .card{
+      background: #ffffff;
+      width: 100%;
+      max-width: 920px;
+      border-radius: 24px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      padding: 36px 28px;
+      text-align: center;
+      border: 1px solid #e2e8f0;
+    }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    /* Container e Ajuste da Logo */
+    .logo-container{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 16px;
+    }
 
-<style>
+    .logo-partido{
+      max-width: 160px;
+      max-height: 85px;
+      height: auto;
+      object-fit: contain;
+    }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+    h1{ 
+      color: #0f172a; 
+      font-size: 26px; 
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 4px; 
+    }
 
-body{
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f4f6f9;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  padding:20px;
-  color:#333;
-}
+    .subtitle{ 
+      color: #64748b; 
+      font-size: 14px; 
+      font-weight: 500;
+      margin-bottom: 24px; 
+    }
+    
+    /* Grid de Indicadores */
+    .stats-grid{ 
+      display: grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap: 16px; 
+      margin-bottom: 24px; 
+    }
 
-.card{
-  width:100%;
-  max-width:920px;
-  background:#fff;
-  border-radius:22px;
-  box-shadow:0 12px 30px rgba(0,0,0,.12);
-  padding:36px 26px;
-  text-align:center;
-}
+    .stat-box{ 
+      background: #f8fafc; 
+      border-radius: 16px; 
+      padding: 18px; 
+      border: 1px solid #e2e8f0;
+    }
 
-.logo-container{
-  width:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin-bottom:18px;
-}
+    .stat-val{ 
+      font-size: 28px; 
+      font-weight: 800; 
+      color: #0284c7; 
+    }
 
-.logo{
-  width:160px;
-  max-width:100%;
-  height:auto;
-  display:block;
-}
+    .stat-lbl{ 
+      font-size: 12px; 
+      color: #64748b; 
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px; 
+    }
+    
+    /* Header do Painel de Filtros com Botão Limpar */
+    .filters-header{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
 
-h1{
-  color:#0B1F3A;
-  font-size:28px;
-  font-weight:700;
-  margin-bottom:4px;
-}
+    .filters-title{
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
 
-.subtitle{
-  color:#555;
-  font-size:15px;
-  font-weight:600;
-  margin-bottom:24px;
-}
+    .btn-limpar{
+      background: none;
+      border: none;
+      color: #0284c7;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background .2s;
+    }
 
-.stats-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-  margin-bottom:24px;
-}
+    .btn-limpar:hover{
+      background: #e0f2fe;
+    }
 
-.stat-box{
-  background:#eef4ff;
-  border-radius:14px;
-  padding:18px;
-}
+    /* Painel de Filtros */
+    .filters-grid{
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 12px;
+      text-align: left;
+      margin-bottom: 20px;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+    }
 
-.stat-number{
-  font-size:28px;
-  font-weight:bold;
-  color:#0B1F3A;
-  margin-bottom:4px;
-}
+    @media (max-width: 768px){
+      .filters-grid{ grid-template-columns: 1fr; }
+    }
 
-.stat-label{
-  font-size:13px;
-  color:#555;
-  font-weight:600;
-}
+    .filter-group label{
+      display: block;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
 
-.filters-header{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  padding: 0 4px;
-  text-align: left;
-}
+    .filter-group input, .filter-group select{
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      background: #ffffff;
+      color: #0f172a;
+      transition: all .2s ease;
+    }
 
-.filters-title{
-  font-size: 13px;
-  font-weight: 700;
-  color: #0B1F3A;
-  text-transform: uppercase;
-}
+    .filter-group input:focus, .filter-group select:focus{ 
+      border-color: #0284c7; 
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
 
-.btn-limpar{
-  background: none;
-  border: none;
-  color: #0284c7;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 6px;
-}
+    /* Tabela de Resultados */
+    .table-container{ 
+      overflow-x: auto; 
+      margin-bottom: 18px; 
+      border-radius: 12px; 
+      border: 1px solid #e2e8f0; 
+      min-height: 220px;
+      position: relative;
+    }
 
-.btn-limpar:hover{ background: #e0f2fe; }
+    table{ 
+      width: 100%; 
+      border-collapse: collapse; 
+      font-size: 13px; 
+      text-align: left; 
+    }
 
-.filters-grid{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  text-align: left;
-  margin-bottom: 20px;
-  background: #f8fafc;
-  padding: 20px;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-}
+    th{ 
+      background: #0f172a; 
+      color: #f8fafc; 
+      padding: 14px 12px; 
+      font-weight: 600;
+      white-space: nowrap; 
+    }
 
-@media (max-width: 768px){
-  .filters-grid{ grid-template-columns: 1fr; }
-}
+    td{ 
+      padding: 12px; 
+      border-bottom: 1px solid #f1f5f9; 
+      white-space: nowrap; 
+      color: #334155;
+    }
 
-.filter-group label{
-  display: block;
-  font-weight: 600;
-  color: #0B1F3A;
-  margin-bottom: 6px;
-  font-size: 12px;
-}
+    tr:nth-child(even){ background: #f8fafc; }
+    
+    .status-badge{
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
 
-.filter-group input, .filter-group select{
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 13px;
-  outline: none;
-  background: #ffffff;
-  color: #0B1F3A;
-}
+    /* Animação do Spinner de Carregamento */
+    .loading-box{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      gap: 12px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+    }
 
-.filter-group input:focus, .filter-group select:focus{ 
-  border-color: #0B1F3A; 
-}
+    .spinner{
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #0284c7;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
 
-.table-container{
-  width:100%;
-  overflow-x:auto;
-  margin-bottom:20px;
-  border-radius:10px;
-  border:1px solid #e0e0e0;
-  min-height:200px;
-}
+    @keyframes spin{
+      to { transform: rotate(360deg); }
+    }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-  text-align:left;
-}
+    /* Controles de Paginação */
+    .pagination-container{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding: 0 4px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
 
-th{
-  background:#0B1F3A;
-  color:#fff;
-  padding:12px 10px;
-  white-space:nowrap;
-}
+    .pagination-info{ 
+      font-size: 13px; 
+      color: #64748b; 
+      font-weight: 500; 
+    }
 
-td{
-  padding:12px 10px;
-  border-bottom:1px solid #eee;
-  white-space:nowrap;
-}
+    .pagination-buttons{ 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+    }
 
-tr:nth-child(even){
-  background:#f9fbfd;
-}
+    .btn-page{
+      padding: 8px 16px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all .2s;
+    }
 
-.btn{
-  display:block;
-  width:100%;
-  border:none;
-  cursor:pointer;
-  text-decoration:none;
-  color:#fff;
-  font-size:16px;
-  font-weight:700;
-  padding:15px;
-  border-radius:12px;
-  margin-top:12px;
-  text-align:center;
-}
+    .btn-page:hover:not(:disabled){ 
+      background: #0f172a; 
+      color: #ffffff; 
+      border-color: #0f172a;
+    }
 
-.btn-pdf{
-  background:#7ED957;
-  color:#0B1F3A;
-}
+    .btn-page:disabled{ 
+      opacity: 0.4; 
+      cursor: not-allowed; 
+      border-color: #e2e8f0; 
+    }
 
-.btn-pdf:hover{
-  background:#6bc74a;
-}
+    /* Botões Principais */
+    .btn{
+      display: block; 
+      width: 100%; 
+      border: none; 
+      border-radius: 12px; 
+      padding: 15px;
+      font-size: 15px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      text-decoration: none;
+      margin-top: 12px; 
+      text-align: center;
+      transition: all .2s ease;
+    }
 
-.btn-voltar{
-  background:#0B1F3A;
-}
+    .btn-pdf{ 
+      background: #10b981; 
+      color: #ffffff; 
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
 
-.btn-voltar:hover{
-  background:#13305c;
-}
+    .btn-pdf:hover{ 
+      background: #059669; 
+      transform: translateY(-1px);
+    }
 
-.btn-sair{
-  background:#C0392B;
-}
+    .btn-voltar{ 
+      background: #0f172a; 
+      color: #ffffff; 
+    }
 
-.btn-sair:hover{
-  background:#962d22;
-}
+    .btn-voltar:hover{ 
+      background: #1e293b; 
+    }
 
-.footer-text{
-  margin-top:20px;
-  font-size:12px;
-  color:#777;
-}
+    .btn-sair{ 
+      background: #ef4444; 
+      color: #ffffff; 
+    }
 
-.mensagem{
-  margin-bottom:15px;
-  font-size:13px;
-  color:#666;
-}
-
-.loading-box{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 30px;
-  gap: 10px;
-  color: #666;
-}
-
-.spinner{
-  width: 28px;
-  height: 28px;
-  border: 3px solid #e0e0e0;
-  border-top-color: #0B1F3A;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin{ to { transform: rotate(360deg); } }
-
-</style>
-
+    .btn-sair:hover{ 
+      background: #dc2626; 
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="card">
 
+  <!-- Logo -->
   <div class="logo-container">
-    <img src="logo-a1.png" alt="Logo Artigo Um" class="logo" onerror="this.src='logoapp.png'">
+    <img src="logoapp.png" alt="Logo" class="logo-partido" onerror="this.style.display='none'">
   </div>
 
-  <h1>Painel Administrativo</h1>
+  <h1>Consulta Inteligente</h1>
+  <div class="subtitle" id="infoUsuario">Carregando dados...</div>
 
-  <div class="subtitle">
-    Sistema de Cadastro Geral - Artigo Um
-  </div>
-
+  <!-- Indicadores -->
   <div class="stats-grid">
-
     <div class="stat-box">
-      <div class="stat-number" id="totalCadastros">--</div>
-      <div class="stat-label">Total de Cadastrados</div>
+      <div class="stat-val" id="totalCadastros">--</div>
+      <div class="stat-lbl">Registros Encontrados</div>
     </div>
-
     <div class="stat-box">
-      <div class="stat-number" id="ultimoCadastro">--</div>
-      <div class="stat-label">Último Cadastro</div>
+      <div class="stat-val" id="ultimoCadastro">--</div>
+      <div class="stat-lbl">Última Atualização</div>
     </div>
-
   </div>
 
-  <div class="mensagem" id="mensagemPainel">
-    Carregando registros...
-  </div>
-
-  <!-- Cabeçalho dos Filtros -->
+  <!-- Header dos Filtros com Botão de Limpar -->
   <div class="filters-header">
     <span class="filters-title">Filtros de Pesquisa</span>
     <button type="button" class="btn-limpar" onclick="limparFiltros()">↺ Limpar Filtros</button>
   </div>
 
-  <!-- Campos de Pesquisa Separados -->
+  <!-- Filtros -->
   <div class="filters-grid">
     <div class="filter-group">
-      <label for="buscaNome">Nome Completo</label>
-      <input type="text" id="buscaNome" placeholder="Nome..." oninput="executarPesquisa()">
+      <label for="buscaNome">Buscar por Nome / Celular</label>
+      <input type="text" id="buscaNome" placeholder="Digite o nome..." oninput="aplicarFiltros()">
     </div>
-
-    <div class="filter-group">
-      <label for="buscaCelular">WhatsApp / Celular</label>
-      <input type="text" id="buscaCelular" placeholder="WhatsApp..." oninput="executarPesquisa()">
-    </div>
-
     <div class="filter-group">
       <label for="filtroEstado">Estado (UF)</label>
       <select id="filtroEstado" onchange="aoMudarEstado()">
         <option value="">Todos os Estados</option>
       </select>
     </div>
-
     <div class="filter-group">
       <label for="filtroCidade">Cidade</label>
-      <select id="filtroCidade" onchange="executarPesquisa()">
+      <select id="filtroCidade" onchange="aplicarFiltros()">
         <option value="">Todas as Cidades</option>
       </select>
     </div>
-
     <div class="filter-group">
-      <label for="buscaBairro">Bairro</label>
-      <input type="text" id="buscaBairro" placeholder="Bairro..." oninput="executarPesquisa()">
-    </div>
-
-    <div class="filter-group">
-      <label for="buscaCoordenador">Coordenador / Líder</label>
-      <input type="text" id="buscaCoordenador" placeholder="Coordenador..." oninput="executarPesquisa()">
+      <label for="filtroStatus">Status 2</label>
+      <select id="filtroStatus" onchange="aplicarFiltros()">
+        <option value="">Todos os Status</option>
+      </select>
     </div>
   </div>
 
+  <!-- Tabela de Resultados -->
   <div class="table-container">
-
     <table>
-
       <thead>
-
         <tr>
-          <th>Data</th>
           <th>Nome</th>
-          <th>Bairro</th>
+          <th>Celular</th>
           <th>Cidade</th>
-          <th>UF</th>
-          <th>WhatsApp</th>
-          <th>Coordenador</th>
-          <th>E-mail</th>
+          <th>Estado</th>
+          <th>Status 2</th>
         </tr>
-
       </thead>
-
-      <tbody id="tabelaResultados">
-
+      <tbody id="tabelaCorpo">
         <tr>
-          <td colspan="8">
+          <td colspan="5">
             <div class="loading-box">
               <div class="spinner"></div>
-              <span>Carregando registros...</span>
+              <span>Carregando registros da planilha...</span>
             </div>
           </td>
         </tr>
-
       </tbody>
-
     </table>
-
   </div>
 
-  <button
-    type="button"
-    class="btn btn-pdf"
-    onclick="gerarRelatorioPDF()"
-  >
-    📄 Baixar Relatório em PDF
-  </button>
-
-  <a
-    class="btn btn-voltar"
-    href="index.html"
-  >
-    Voltar ao Aplicativo
-  </a>
-
-  <button
-    type="button"
-    class="btn btn-sair"
-    onclick="sair()"
-  >
-    Sair do Sistema
-  </button>
-
-  <div class="footer-text">
-    Os dados são atualizados diretamente da base oficial do Artigo Um.
+  <!-- Paginação -->
+  <div class="pagination-container">
+    <div class="pagination-info">
+      Exibir 
+      <select id="itensPorPagina" onchange="mudarItensPorPagina()" style="padding:4px 8px; border-radius:6px; border:1px solid #cbd5e1;">
+        <option value="10" selected>10 por página</option>
+        <option value="25">25 por página</option>
+      </select>
+      | Exibindo <span id="lblInicio">0</span>-<span id="lblFim">0</span> de <span id="lblTotalFiltro">0</span>
+    </div>
+    <div class="pagination-buttons">
+      <button class="btn-page" id="btnAnt" onclick="paginaAnterior()">◄ Anterior</button>
+      <span id="lblPaginaAtual" style="font-size:13px; font-weight:bold; color:#0f172a;">Pág. 1 de 1</span>
+      <button class="btn-page" id="btnProx" onclick="proximaPagina()">Próximo ►</button>
+    </div>
   </div>
 
+  <!-- Ações -->
+  <button type="button" class="btn btn-pdf" onclick="gerarPDF()">📄 Baixar e Imprimir Relatório em PDF</button>
+  <a class="btn btn-voltar" href="index.html">Voltar à Capa</a>
+  <button type="button" class="btn btn-sair" onclick="sair()">Sair do Sistema</button>
 </div>
 
 <script>
+const VERSAO_APP = "1.0.6";
+const API_URL = "https://script.google.com/macros/s/AKfycbxcFcKBO39I7UibZoFiPz3a1TZIpXtN5kGK0XnFJu-P-yfMhpCcGCMZIE2LmGtnD-qFqw/exec";
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbxcFcKBO39I7UibZoFiPz3a1TZIpXtN5kGK0XnFJu-P-yfMhpCcGCMZIE2LmGtnD-qFqw/exec";
+// Lê permissões do usuário autenticado no login
+const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || localStorage.getItem("usuarioLogado") || "null");
 
-
-/* =====================================================
-   VERIFICA LOGIN
-===================================================== */
-
-const usuarioLogado =
-JSON.parse(localStorage.getItem("usuarioLogado") || "null");
-
-const TOKEN = usuarioLogado ? usuarioLogado.token : "";
-
-if(!usuarioLogado){
-
+if(!usuario || (!usuario.email && !usuario.token)){
+  localStorage.removeItem("usuarioConsulta");
+  localStorage.removeItem("usuarioLogado");
   window.location.href = "login.html";
-
+} else {
+  document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Permissão: ${usuario.estados || "Geral"}`;
 }
 
+let dadosGerais = [];
+let dadosFiltrados = [];
 
-/* =====================================================
-   VARIÁVEIS
-===================================================== */
+let paginaAtual = 1;
+let itensPorPagina = 10;
 
-let todosOsCadastros = [];
-let resultadosFiltrados = [];
+async function carregarDados(){
+  exibirSpinner();
+  try {
+    const tokenSeguro = encodeURIComponent(usuario ? usuario.token || "" : "");
+    const res = await fetch(`${API_URL}?token=${tokenSeguro}&_v=${VERSAO_APP}`, { cache: "no-store" });
+    const data = await res.json();
 
-
-/* =====================================================
-   CARREGAR DADOS
-===================================================== */
-
-async function carregarDadosIniciais(){
-
-  const mensagem =
-  document.getElementById("mensagemPainel");
-
-  const tabela =
-  document.getElementById("tabelaResultados");
-
-  try{
-
-    mensagem.innerText =
-    "Carregando registros...";
-
-
-    /* ================================================
-       TOTAL E ÚLTIMO REGISTRO
-    ================================================= */
-
-    const respostaTotal =
-    await fetch(API_URL + "?token=" + encodeURIComponent(TOKEN));
-
-    const dadosTotal =
-    await respostaTotal.json();
-
-
-    if(dadosTotal.status === "ok"){
-
-      document.getElementById("totalCadastros").innerText =
-      dadosTotal.total || 0;
-
-      if(dadosTotal.ultimo){
-
-        const data =
-        new Date(dadosTotal.ultimo);
-
-        const texto =
-        data.toLocaleDateString("pt-BR") +
-        " " +
-        data.toLocaleTimeString(
-          "pt-BR",
-          {
-            hour:"2-digit",
-            minute:"2-digit"
-          }
-        );
-
-        document.getElementById("ultimoCadastro").innerText =
-        texto;
-
-      }else{
-
-        document.getElementById("ultimoCadastro").innerText =
-        "--";
-
+    if(data.status === "ok"){
+      dadosGerais = data.resultados || [];
+      dadosFiltrados = dadosGerais;
+      
+      document.getElementById("ultimoCadastro").innerText = new Date().toLocaleDateString("pt-BR");
+      
+      populaOpcoesFiltros();
+      aplicarFiltros();
+    } else {
+      if(data.mensagem && (data.mensagem.includes("sessão") || data.mensagem.includes("token"))){
+        sair();
+        return;
       }
-
+      document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">${data.mensagem || "Erro ao carregar dados."}</td></tr>`;
     }
-
-
-    /* ================================================
-       ESTADOS PERMITIDOS
-    ================================================= */
-
-    const estadosTexto =
-    String(usuarioLogado.estados || "").trim();
-
-
-    let estadosPermitidos = [];
-
-
-    if(estadosTexto !== ""){
-
-      estadosPermitidos =
-      estadosTexto
-      .toUpperCase()
-      .split(",")
-      .map(function(estado){
-
-        return estado.trim();
-
-      })
-      .filter(function(estado){
-
-        return estado !== "";
-
-      });
-
-    }
-
-
-    /* ================================================
-       ADMINISTRADOR GERAL
-    ================================================= */
-
-    if(
-      usuarioLogado.perfil === "ADMIN" ||
-      estadosPermitidos.includes("*")
-    ){
-
-      const resposta =
-      await fetch(API_URL + "?token=" + encodeURIComponent(TOKEN) + "&q=");
-
-      const dados =
-      await resposta.json();
-
-      if(
-        dados.status === "ok" &&
-        Array.isArray(dados.resultados)
-      ){
-
-        todosOsCadastros =
-        dados.resultados;
-
-      }
-
-    }
-
-
-    /* ================================================
-       COORDENADOR ESTADUAL
-    ================================================= */
-
-    else if(estadosPermitidos.length > 0){
-
-      const consultas =
-      estadosPermitidos.map(function(estado){
-
-        return fetch(
-          API_URL +
-          "?token=" +
-          encodeURIComponent(TOKEN) +
-          "&q=" +
-          encodeURIComponent(estado)
-        )
-        .then(function(resposta){
-
-          return resposta.json();
-
-        });
-
-      });
-
-
-      const respostas =
-      await Promise.all(consultas);
-
-
-      let registros = [];
-
-
-      respostas.forEach(function(dados){
-
-        if(
-          dados.status === "ok" &&
-          Array.isArray(dados.resultados)
-        ){
-
-          registros =
-          registros.concat(dados.resultados);
-
-        }
-
-      });
-
-
-      /* Remove possíveis duplicidades */
-
-      const mapa = {};
-
-      registros.forEach(function(item){
-
-        const chave =
-        String(item.data || "") +
-        "|" +
-        String(item.nome || "") +
-        "|" +
-        String(item.whatsapp || "");
-
-        mapa[chave] = item;
-
-      });
-
-
-      todosOsCadastros =
-      Object.values(mapa);
-
-
-      /* Segurança adicional no navegador */
-
-      todosOsCadastros =
-      todosOsCadastros.filter(function(item){
-
-        const uf =
-        String(item.estado || "")
-        .toUpperCase()
-        .trim();
-
-        return estadosPermitidos.includes(uf);
-
-      });
-
-    }
-
-
-    else{
-
-      todosOsCadastros = [];
-
-    }
-
-
-    resultadosFiltrados =
-    todosOsCadastros.slice();
-
-
-    populaOpcoesFiltros();
-    exibirTabela(resultadosFiltrados);
-
-
-    mensagem.innerText =
-    todosOsCadastros.length +
-    " cadastro(s) disponível(is) para este usuário.";
-
-
-  }catch(erro){
-
-    console.error(
-      "Erro ao carregar dados:",
-      erro
-    );
-
-    mensagem.innerText =
-    "Erro ao conectar com o servidor.";
-
-    tabela.innerHTML =
-    `
-      <tr>
-        <td
-          colspan="8"
-          style="text-align:center;color:red;padding:20px;"
-        >
-          Não foi possível carregar os registros.
-        </td>
-      </tr>
-    `;
-
+  } catch(e) {
+    document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">Erro de conexão com a planilha. Faça login novamente.</td></tr>`;
   }
-
 }
 
-
-/* =====================================================
-   POPULA DROPDOWNS DE ESTADO E CIDADE
-===================================================== */
+function exibirSpinner(){
+  document.getElementById("tabelaCorpo").innerHTML = `
+    <tr>
+      <td colspan="5">
+        <div class="loading-box">
+          <div class="spinner"></div>
+          <span>Carregando registros da planilha...</span>
+        </div>
+      </td>
+    </tr>
+  `;
+}
 
 function populaOpcoesFiltros(){
   const selectUF = document.getElementById("filtroEstado");
-  const estadosUnicos = [...new Set(todosOsCadastros.map(i => (i.estado || "").trim().toUpperCase()))].filter(e => e && e !== "-").sort();
+  const selectStatus = document.getElementById("filtroStatus");
+
+  const estadosUnicos = [...new Set(dadosGerais.map(i => (i.estado || "").trim().toUpperCase()))].filter(e => e && e !== "-").sort();
+  const statusUnicos = [...new Set(dadosGerais.map(i => (i.status2 || "").trim()))].filter(s => s && s !== "-").sort();
 
   selectUF.innerHTML = '<option value="">Todos os Estados</option>';
   estadosUnicos.forEach(uf => {
     selectUF.innerHTML += `<option value="${uf}">${uf}</option>`;
+  });
+
+  selectStatus.innerHTML = '<option value="">Todos os Status</option>';
+  statusUnicos.forEach(st => {
+    selectStatus.innerHTML += `<option value="${st}">${st}</option>`;
   });
 
   populaCidades();
@@ -725,9 +530,9 @@ function populaCidades(){
   const selectUF = document.getElementById("filtroEstado").value;
   const selectCidade = document.getElementById("filtroCidade");
 
-  let dadosParaCidades = todosOsCadastros;
+  let dadosParaCidades = dadosGerais;
   if(selectUF){
-    dadosParaCidades = todosOsCadastros.filter(i => (i.estado || "").trim().toUpperCase() === selectUF);
+    dadosParaCidades = dadosGerais.filter(i => (i.estado || "").trim().toUpperCase() === selectUF);
   }
 
   const cidadesUnicas = [...new Set(dadosParaCidades.map(i => (i.cidade || "").trim()))].filter(c => c && c !== "-").sort();
@@ -740,343 +545,169 @@ function populaCidades(){
 
 function aoMudarEstado(){
   populaCidades();
-  executarPesquisa();
+  aplicarFiltros();
 }
 
-
-/* =====================================================
-   EXIBIR TABELA
-===================================================== */
-
-function exibirTabela(lista){
-
-  const tbody =
-  document.getElementById("tabelaResultados");
-
-
-  if(!lista || lista.length === 0){
-
-    tbody.innerHTML =
-    `
-      <tr>
-        <td
-          colspan="8"
-          style="text-align:center;color:#888;padding:20px;"
-        >
-          Nenhum resultado encontrado.
-        </td>
-      </tr>
-    `;
-
-    return;
-
-  }
-
-
-  tbody.innerHTML = "";
-
-
-  lista.forEach(function(item){
-
-    const tr =
-    document.createElement("tr");
-
-
-    const data =
-    item.data
-    ? new Date(item.data).toLocaleDateString("pt-BR")
-    : "-";
-
-
-    tr.innerHTML =
-    `
-      <td>${data}</td>
-
-      <td>
-        <strong>${item.nome || "-"}</strong>
-      </td>
-
-      <td>
-        ${item.bairro || "-"}
-      </td>
-
-      <td>
-        ${item.cidade || "-"}
-      </td>
-
-      <td>
-        ${item.estado || "-"}
-      </td>
-
-      <td>
-        ${item.whatsapp || "-"}
-      </td>
-
-      <td>
-        ${item.coordenador || "-"}
-      </td>
-
-      <td>
-        ${item.email || "-"}
-      </td>
-    `;
-
-
-    tbody.appendChild(tr);
-
-  });
-
-}
-
-
-/* =====================================================
-   PESQUISA SEPARADA POR CAMPO
-===================================================== */
-
-function executarPesquisa(){
-
-  const nomeSel = document.getElementById("buscaNome").value.trim().toLowerCase();
-  const celularSel = document.getElementById("buscaCelular").value.trim().toLowerCase();
+function aplicarFiltros(){
+  const termoNome = document.getElementById("buscaNome").value.trim().toLowerCase();
   const ufSel = document.getElementById("filtroEstado").value;
   const cidadeSel = document.getElementById("filtroCidade").value.toLowerCase();
-  const bairroSel = document.getElementById("buscaBairro").value.trim().toLowerCase();
-  const coordSel = document.getElementById("buscaCoordenador").value.trim().toLowerCase();
+  const statusSel = document.getElementById("filtroStatus").value.toLowerCase();
 
-  resultadosFiltrados = todosOsCadastros.filter(function(item){
-    const nome = (item.nome || "").toLowerCase();
-    const celular = (item.whatsapp || "").toLowerCase();
-    const estado = (item.estado || "").toUpperCase().trim();
-    const cidade = (item.cidade || "").toLowerCase().trim();
-    const bairro = (item.bairro || "").toLowerCase().trim();
-    const coordenador = (item.coordenador || "").toLowerCase().trim();
+  dadosFiltrados = dadosGerais.filter(i => {
+    const nome = (i.nome || "").toLowerCase();
+    const celular = (i.whatsapp || i.celular || "").toLowerCase();
+    const estado = (i.estado || "").toUpperCase().trim();
+    const cidade = (i.cidade || "").toLowerCase().trim();
+    const status = (i.status2 || "").toLowerCase().trim();
 
-    const bateNome = !nomeSel || nome.includes(nomeSel);
-    const bateCelular = !celularSel || celular.includes(celularSel);
+    const bateNome = !termoNome || nome.includes(termoNome) || celular.includes(termoNome);
     const bateUF = !ufSel || estado === ufSel;
     const bateCidade = !cidadeSel || cidade === cidadeSel;
-    const bateBairro = !bairroSel || bairro.includes(bairroSel);
-    const bateCoord = !coordSel || coordenador.includes(coordSel);
+    const bateStatus = !statusSel || status === statusSel;
 
-    return bateNome && bateCelular && bateUF && bateCidade && bateBairro && bateCoord;
+    return bateNome && bateUF && bateCidade && bateStatus;
   });
 
-  exibirTabela(resultadosFiltrados);
-
+  paginaAtual = 1;
+  renderizarPagina();
 }
 
 function limparFiltros(){
   document.getElementById("buscaNome").value = "";
-  document.getElementById("buscaCelular").value = "";
   document.getElementById("filtroEstado").value = "";
-  document.getElementById("buscaBairro").value = "";
-  document.getElementById("buscaCoordenador").value = "";
+  document.getElementById("filtroStatus").value = "";
   populaCidades();
-  executarPesquisa();
+  aplicarFiltros();
 }
 
+function renderizarPagina(){
+  const total = dadosFiltrados.length;
+  document.getElementById("totalCadastros").innerText = total;
+  document.getElementById("lblTotalFiltro").innerText = total;
 
-/* =====================================================
-   GERAR PDF
-===================================================== */
+  const totalPaginas = Math.ceil(total / itensPorPagina) || 1;
+  if(paginaAtual > totalPaginas) paginaAtual = totalPaginas;
 
-function gerarRelatorioPDF(){
+  const inicio = (paginaAtual - 1) * itensPorPagina;
+  const fim = Math.min(inicio + itensPorPagina, total);
 
-  const dadosParaExportar =
-  resultadosFiltrados;
+  document.getElementById("lblInicio").innerText = total === 0 ? 0 : inicio + 1;
+  document.getElementById("lblFim").innerText = fim;
+  document.getElementById("lblPaginaAtual").innerText = `Pág. ${paginaAtual} de ${totalPaginas}`;
 
+  document.getElementById("btnAnt").disabled = (paginaAtual === 1);
+  document.getElementById("btnProx").disabled = (paginaAtual >= totalPaginas || total === 0);
 
-  if(
-    !dadosParaExportar ||
-    dadosParaExportar.length === 0
-  ){
+  const listaPagina = dadosFiltrados.slice(inicio, fim);
+  renderTabela(listaPagina);
+}
 
-    alert(
-      "Não existem registros disponíveis para gerar o relatório."
-    );
-
+function renderTabela(lista){
+  const tbody = document.getElementById("tabelaCorpo");
+  if(lista.length === 0){
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">Nenhum registro localizado com estes filtros.</td></tr>`;
     return;
-
   }
-
-
-  if(!window.jspdf){
-
-    alert(
-      "A biblioteca de PDF ainda não foi carregada. Tente novamente."
-    );
-
-    return;
-
-  }
-
-
-  const { jsPDF } =
-  window.jspdf;
-
-
-  const doc =
-  new jsPDF(
-    "p",
-    "mm",
-    "a4"
-  );
-
-
-  doc.setFillColor(
-    11,
-    31,
-    58
-  );
-
-  doc.rect(
-    0,
-    0,
-    210,
-    30,
-    "F"
-  );
-
-
-  doc.setTextColor(
-    255,
-    255,
-    255
-  );
-
-  doc.setFontSize(16);
-
-  doc.text(
-    "ARTIGO UM — RELATÓRIO DE CADASTRADOS",
-    14,
-    18
-  );
-
-
-  doc.setFontSize(10);
-
-
-  const estadoInfo =
-  usuarioLogado.estados
-  ? "Estado(s): " +
-    usuarioLogado.estados
-  : "Geral";
-
-
-  doc.text(
-    estadoInfo +
-    " | Gerado em: " +
-    new Date().toLocaleDateString("pt-BR") +
-    " | Total: " +
-    dadosParaExportar.length +
-    " registro(s)",
-    14,
-    25
-  );
-
-
-  const colunas =
-  [
-    "Data",
-    "Nome Completo",
-    "Cidade/UF",
-    "WhatsApp",
-    "Coordenador",
-    "E-mail"
-  ];
-
-
-  const linhas =
-  dadosParaExportar.map(function(r){
-
-    return [
-
-      r.data
-      ? new Date(r.data)
-        .toLocaleDateString("pt-BR")
-      : "-",
-
-      r.nome || "-",
-
-      (r.cidade || "-") +
-      "/" +
-      (r.estado || "-"),
-
-      r.whatsapp || "-",
-
-      r.coordenador || "-",
-
-      r.email || "-"
-
-    ];
-
+  tbody.innerHTML = "";
+  lista.forEach(i => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><strong>${i.nome || "-"}</strong></td>
+      <td>${i.whatsapp || i.celular || "-"}</td>
+      <td>${i.cidade || "-"}</td>
+      <td>${i.estado || "-"}</td>
+      <td><span class="status-badge">${i.status2 || "Pendente"}</span></td>
+    `;
+    tbody.appendChild(tr);
   });
+}
 
+function paginaAnterior(){
+  if(paginaAtual > 1){
+    paginaAtual--;
+    renderizarPagina();
+  }
+}
+
+function proximaPagina(){
+  const totalPaginas = Math.ceil(dadosFiltrados.length / itensPorPagina);
+  if(paginaAtual < totalPaginas){
+    paginaAtual++;
+    renderizarPagina();
+  }
+}
+
+function mudarItensPorPagina(){
+  itensPorPagina = parseInt(document.getElementById("itensPorPagina").value);
+  paginaAtual = 1;
+  renderizarPagina();
+}
+
+function gerarPDF(){
+  if(dadosFiltrados.length === 0){
+    alert("Não existem registros selecionados para gerar o relatório.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF("p", "mm", "a4");
+
+  doc.setFillColor(15, 23, 42);
+  doc.rect(0, 0, 210, 28, "F");
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(15);
+  doc.text("RELATÓRIO DE CONSULTA E STATUS", 14, 16);
+  
+  doc.setFontSize(9);
+  doc.text(`Emissão: ${new Date().toLocaleDateString("pt-BR")} | Total de Registros Filtrados: ${dadosFiltrados.length}`, 14, 23);
+
+  const colunas = ["Nome Completo", "Celular", "Cidade", "Estado", "Status 2"];
+  const linhas = dadosFiltrados.map(r => [
+    r.nome || "-",
+    r.whatsapp || r.celular || "-",
+    r.cidade || "-",
+    r.estado || "-",
+    r.status2 || "Pendente"
+  ]);
 
   doc.autoTable({
-
-    startY:35,
-
-    head:[colunas],
-
-    body:linhas,
-
-    theme:"striped",
-
-    headStyles:{
-      fillColor:[11,31,58],
-      textColor:[255,255,255],
-      fontStyle:"bold"
+    startY: 32,
+    head: [colunas],
+    body: linhas,
+    theme: "striped",
+    headStyles: { 
+      fillColor: [15, 23, 42], 
+      textColor: [255, 255, 255], 
+      fontStyle: "bold",
+      fontSize: 9 
     },
-
-    styles:{
-      fontSize:8,
-      cellPadding:3
+    styles: { 
+      fontSize: 8, 
+      cellPadding: 3, 
+      valign: "middle" 
+    },
+    columnStyles: {
+      0: { cellWidth: 55 },
+      1: { cellWidth: 35 },
+      2: { cellWidth: 40 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 35 }
     }
-
   });
 
-
-  const nomeEstado =
-  (usuarioLogado.estados || "Geral")
-  .replace(
-    /[^a-zA-Z0-9]/g,
-    "_"
-  );
-
-
-  doc.save(
-    "Relatorio_ArtigoUm_" +
-    nomeEstado +
-    ".pdf"
-  );
-
+  doc.save(`Relatorio_Consulta_${new Date().toISOString().split("T")[0]}.pdf`);
 }
-
-
-/* =====================================================
-   SAIR
-===================================================== */
 
 function sair(){
-
-  localStorage.removeItem(
-    "usuarioLogado"
-  );
-
-  window.location.href =
-  "login.html";
-
+  localStorage.removeItem("usuarioConsulta");
+  localStorage.removeItem("usuarioLogado");
+  window.location.href = "login.html";
 }
 
-
-/* =====================================================
-   INICIAR
-===================================================== */
-
-carregarDadosIniciais();
-
+carregarDados();
 </script>
 
 </body>
-
 </html>
