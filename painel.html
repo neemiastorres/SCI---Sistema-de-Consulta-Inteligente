@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel | Consulta Inteligente</title>
+  <title>Painel | Consulta Inteligente (SCI)</title>
   <meta name="theme-color" content="#0B1F3A">
 
-  <!-- Força a invalidação de cache no navegador -->
+  <!-- Invalidação de cache local -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 
-  <!-- Bibliotecas de relatórios em PDF -->
+  <!-- Bibliotecas para Relatórios em PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
@@ -32,7 +32,7 @@
     .card{
       background: #ffffff;
       width: 100%;
-      max-width: 1100px;
+      max-width: 960px;
       border-radius: 24px;
       box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
       padding: 36px 28px;
@@ -40,7 +40,6 @@
       border: 1px solid #e2e8f0;
     }
 
-    /* Container e Ajuste da Logo */
     .logo-container{
       display: flex;
       justify-content: center;
@@ -70,7 +69,7 @@
       margin-bottom: 24px; 
     }
     
-    /* Grid de Indicadores */
+    /* Indicadores em Destaque */
     .stats-grid{ 
       display: grid; 
       grid-template-columns: 1fr 1fr; 
@@ -100,7 +99,7 @@
       margin-top: 4px; 
     }
     
-    /* Header do Painel de Filtros com Botão Limpar */
+    /* Header dos Filtros com Botão de Limpar */
     .filters-header{
       display: flex;
       justify-content: space-between;
@@ -139,7 +138,7 @@
     /* Painel de Filtros Avançados */
     .filters-grid{
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 2fr 1fr 1fr 1fr;
       gap: 12px;
       text-align: left;
       margin-bottom: 20px;
@@ -149,7 +148,7 @@
       border: 1px solid #e2e8f0;
     }
 
-    @media (max-width: 820px){
+    @media (max-width: 768px){
       .filters-grid{ grid-template-columns: 1fr; }
     }
 
@@ -163,10 +162,10 @@
 
     .filter-group input, .filter-group select{
       width: 100%;
-      padding: 10px 12px;
+      padding: 11px 14px;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
-      font-size: 13px;
+      font-size: 14px;
       outline: none;
       background: #ffffff;
       color: #0f172a;
@@ -222,7 +221,7 @@
       color: #0369a1;
     }
 
-    /* Animação do Spinner de Carregamento */
+    /* Indicador de Carregamento (Spinner) */
     .loading-box{
       display: flex;
       flex-direction: column;
@@ -248,7 +247,7 @@
       to { transform: rotate(360deg); }
     }
 
-    /* Controles de Paginação */
+    /* Paginação */
     .pagination-container{
       display: flex;
       justify-content: space-between;
@@ -345,12 +344,12 @@
 
 <div class="card">
 
-  <!-- Logo do Partido -->
+  <!-- Logo -->
   <div class="logo-container">
-    <img src="logoapp.png" alt="Logo" class="logo-partido" onerror="this.src='logo-a1.png'">
+    <img src="logoapp.png" alt="Logo" class="logo-partido" onerror="this.style.display='none'">
   </div>
 
-  <h1>Consulta Inteligente</h1>
+  <h1>Consulta Inteligente (SCI)</h1>
   <div class="subtitle" id="infoUsuario">Carregando dados...</div>
 
   <!-- Indicadores -->
@@ -367,19 +366,15 @@
 
   <!-- Header dos Filtros com Botão de Limpar -->
   <div class="filters-header">
-    <span class="filters-title">Filtros de Pesquisa Separados</span>
+    <span class="filters-title">Filtros de Pesquisa Avançados</span>
     <button type="button" class="btn-limpar" onclick="limparFiltros()">↺ Limpar Filtros</button>
   </div>
 
   <!-- Filtros -->
   <div class="filters-grid">
     <div class="filter-group">
-      <label for="buscaNome">Nome Completo</label>
+      <label for="buscaNome">Buscar por Nome / Celular</label>
       <input type="text" id="buscaNome" placeholder="Digite o nome..." oninput="aplicarFiltros()">
-    </div>
-    <div class="filter-group">
-      <label for="buscaCelular">Celular / WhatsApp</label>
-      <input type="text" id="buscaCelular" placeholder="Digite o telefone..." oninput="aplicarFiltros()">
     </div>
     <div class="filter-group">
       <label for="filtroEstado">Estado (UF)</label>
@@ -394,12 +389,10 @@
       </select>
     </div>
     <div class="filter-group">
-      <label for="buscaBairro">Bairro</label>
-      <input type="text" id="buscaBairro" placeholder="Digite o bairro..." oninput="aplicarFiltros()">
-    </div>
-    <div class="filter-group">
-      <label for="buscaCoordenador">Coordenador / Líder</label>
-      <input type="text" id="buscaCoordenador" placeholder="Digite o coordenador..." oninput="aplicarFiltros()">
+      <label for="filtroStatus">Status 2</label>
+      <select id="filtroStatus" onchange="aplicarFiltros()">
+        <option value="">Todos os Status</option>
+      </select>
     </div>
   </div>
 
@@ -408,19 +401,16 @@
     <table>
       <thead>
         <tr>
-          <th>Data</th>
           <th>Nome</th>
-          <th>Celular / WhatsApp</th>
+          <th>Celular</th>
           <th>Cidade</th>
-          <th>Bairro</th>
-          <th>UF</th>
-          <th>Coordenador</th>
-          <th>E-mail</th>
+          <th>Estado</th>
+          <th>Status 2</th>
         </tr>
       </thead>
       <tbody id="tabelaCorpo">
         <tr>
-          <td colspan="8">
+          <td colspan="5">
             <div class="loading-box">
               <div class="spinner"></div>
               <span>Carregando registros da planilha...</span>
@@ -438,7 +428,6 @@
       <select id="itensPorPagina" onchange="mudarItensPorPagina()" style="padding:4px 8px; border-radius:6px; border:1px solid #cbd5e1;">
         <option value="10" selected>10 por página</option>
         <option value="25">25 por página</option>
-        <option value="50">50 por página</option>
       </select>
       | Exibindo <span id="lblInicio">0</span>-<span id="lblFim">0</span> de <span id="lblTotalFiltro">0</span>
     </div>
@@ -456,15 +445,14 @@
 </div>
 
 <script>
-const VERSAO_APP = "1.1.0";
-const API_URL = "https://script.google.com/macros/s/AKfycbxcFcKBO39I7UibZoFiPz3a1TZIpXtN5kGK0XnFJu-P-yfMhpCcGCMZIE2LmGtnD-qFqw/exec";
+const VERSAO_APP = "1.0.6";
+const API_URL = "https://script.google.com/macros/s/AKfycbwlvHJZn1audQQ1K-trijBmOeeszv7_akRGbqtrx86RR6dyEWGkroF9T1vH3t-RVi9E-g/exec";
 
-// Suporta a leitura tanto de 'usuarioConsulta' quanto de 'usuarioLogado' para compatibilidade
-const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || localStorage.getItem("usuarioLogado") || "null");
+// Autenticação prévia local do projeto SCI
+const usuario = JSON.parse(localStorage.getItem("usuarioConsulta") || "null");
 
-if(!usuario || (!usuario.email && !usuario.token)){
+if(!usuario || !usuario.email){
   localStorage.removeItem("usuarioConsulta");
-  localStorage.removeItem("usuarioLogado");
   window.location.href = "login.html";
 } else {
   document.getElementById("infoUsuario").innerText = `Usuário: ${usuario.email} | Permissão: ${usuario.estados || "Geral"}`;
@@ -487,26 +475,26 @@ async function carregarDados(){
       dadosGerais = data.resultados || [];
       dadosFiltrados = dadosGerais;
       
-      document.getElementById("ultimoCadastro").innerText = data.ultimo ? new Date(data.ultimo).toLocaleDateString("pt-BR") : new Date().toLocaleDateString("pt-BR");
+      document.getElementById("ultimoCadastro").innerText = new Date().toLocaleDateString("pt-BR");
       
       populaOpcoesFiltros();
       aplicarFiltros();
     } else {
-      if(data.mensagem && (data.mensagem.includes("sessão") || data.mensagem.includes("token") || data.mensagem.includes("autorizado"))){
+      if(data.mensagem && (data.mensagem.includes("sessão") || data.mensagem.includes("token"))){
         sair();
         return;
       }
-      document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="8" style="text-align:center; color:red; padding:20px;">${data.mensagem || "Erro ao carregar dados."}</td></tr>`;
+      document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">${data.mensagem || "Erro ao carregar dados."}</td></tr>`;
     }
   } catch(e) {
-    document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="8" style="text-align:center; color:red; padding:20px;">Erro de conexão com a planilha. Faça login novamente.</td></tr>`;
+    document.getElementById("tabelaCorpo").innerHTML = `<tr><td colspan="5" style="text-align:center; color:red; padding:20px;">Erro de conexão com a planilha. Faça login novamente.</td></tr>`;
   }
 }
 
 function exibirSpinner(){
   document.getElementById("tabelaCorpo").innerHTML = `
     <tr>
-      <td colspan="8">
+      <td colspan="5">
         <div class="loading-box">
           <div class="spinner"></div>
           <span>Carregando registros da planilha...</span>
@@ -518,11 +506,19 @@ function exibirSpinner(){
 
 function populaOpcoesFiltros(){
   const selectUF = document.getElementById("filtroEstado");
+  const selectStatus = document.getElementById("filtroStatus");
+
   const estadosUnicos = [...new Set(dadosGerais.map(i => (i.estado || "").trim().toUpperCase()))].filter(e => e && e !== "-").sort();
+  const statusUnicos = [...new Set(dadosGerais.map(i => (i.status2 || "").trim()))].filter(s => s && s !== "-").sort();
 
   selectUF.innerHTML = '<option value="">Todos os Estados</option>';
   estadosUnicos.forEach(uf => {
     selectUF.innerHTML += `<option value="${uf}">${uf}</option>`;
+  });
+
+  selectStatus.innerHTML = '<option value="">Todos os Status</option>';
+  statusUnicos.forEach(st => {
+    selectStatus.innerHTML += `<option value="${st}">${st}</option>`;
   });
 
   populaCidades();
@@ -551,29 +547,24 @@ function aoMudarEstado(){
 }
 
 function aplicarFiltros(){
-  const nomeSel = document.getElementById("buscaNome").value.trim().toLowerCase();
-  const celularSel = document.getElementById("buscaCelular").value.trim().toLowerCase();
+  const termoNome = document.getElementById("buscaNome").value.trim().toLowerCase();
   const ufSel = document.getElementById("filtroEstado").value;
   const cidadeSel = document.getElementById("filtroCidade").value.toLowerCase();
-  const bairroSel = document.getElementById("buscaBairro").value.trim().toLowerCase();
-  const coordSel = document.getElementById("buscaCoordenador").value.trim().toLowerCase();
+  const statusSel = document.getElementById("filtroStatus").value.toLowerCase();
 
   dadosFiltrados = dadosGerais.filter(i => {
     const nome = (i.nome || "").toLowerCase();
     const celular = (i.whatsapp || i.celular || "").toLowerCase();
     const estado = (i.estado || "").toUpperCase().trim();
     const cidade = (i.cidade || "").toLowerCase().trim();
-    const bairro = (i.bairro || "").toLowerCase().trim();
-    const coordenador = (i.coordenador || "").toLowerCase().trim();
+    const status = (i.status2 || "").toLowerCase().trim();
 
-    const bateNome = !nomeSel || nome.includes(nomeSel);
-    const bateCelular = !celularSel || celular.includes(celularSel);
+    const bateNome = !termoNome || nome.includes(termoNome) || celular.includes(termoNome);
     const bateUF = !ufSel || estado === ufSel;
     const bateCidade = !cidadeSel || cidade === cidadeSel;
-    const bateBairro = !bairroSel || bairro.includes(bairroSel);
-    const bateCoord = !coordSel || coordenador.includes(coordSel);
+    const bateStatus = !statusSel || status === statusSel;
 
-    return bateNome && bateCelular && bateUF && bateCidade && bateBairro && bateCoord;
+    return bateNome && bateUF && bateCidade && bateStatus;
   });
 
   paginaAtual = 1;
@@ -583,10 +574,8 @@ function aplicarFiltros(){
 // Reseta todos os filtros para o estado inicial
 function limparFiltros(){
   document.getElementById("buscaNome").value = "";
-  document.getElementById("buscaCelular").value = "";
   document.getElementById("filtroEstado").value = "";
-  document.getElementById("buscaBairro").value = "";
-  document.getElementById("buscaCoordenador").value = "";
+  document.getElementById("filtroStatus").value = "";
   populaCidades();
   aplicarFiltros();
 }
@@ -616,22 +605,18 @@ function renderizarPagina(){
 function renderTabela(lista){
   const tbody = document.getElementById("tabelaCorpo");
   if(lista.length === 0){
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#64748b; padding:20px;">Nenhum registro localizado com estes filtros.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#64748b; padding:20px;">Nenhum registro localizado com estes filtros.</td></tr>`;
     return;
   }
   tbody.innerHTML = "";
   lista.forEach(i => {
-    const dataFmt = i.data ? new Date(i.data).toLocaleDateString("pt-BR") : "-";
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${dataFmt}</td>
       <td><strong>${i.nome || "-"}</strong></td>
       <td>${i.whatsapp || i.celular || "-"}</td>
       <td>${i.cidade || "-"}</td>
-      <td>${i.bairro || "-"}</td>
       <td>${i.estado || "-"}</td>
-      <td>${i.coordenador || "-"}</td>
-      <td>${i.email || "-"}</td>
+      <td><span class="status-badge">${i.status2 || "Pendente"}</span></td>
     `;
     tbody.appendChild(tr);
   });
@@ -672,19 +657,18 @@ function gerarPDF(){
   
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(15);
-  doc.text("RELATÓRIO DE CONSULTA E STATUS", 14, 16);
+  doc.text("RELATÓRIO DE CONSULTA E STATUS (SCI)", 14, 16);
   
   doc.setFontSize(9);
   doc.text(`Emissão: ${new Date().toLocaleDateString("pt-BR")} | Total de Registros Filtrados: ${dadosFiltrados.length}`, 14, 23);
 
-  const colunas = ["Data", "Nome Completo", "Celular", "Cidade/UF", "Coordenador", "E-mail"];
+  const colunas = ["Nome Completo", "Celular", "Cidade", "Estado", "Status 2"];
   const linhas = dadosFiltrados.map(r => [
-    r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
     r.nome || "-",
     r.whatsapp || r.celular || "-",
-    (r.cidade || "-") + "/" + (r.estado || "-"),
-    r.coordenador || "-",
-    r.email || "-"
+    r.cidade || "-",
+    r.estado || "-",
+    r.status2 || "Pendente"
   ]);
 
   doc.autoTable({
@@ -696,21 +680,27 @@ function gerarPDF(){
       fillColor: [15, 23, 42], 
       textColor: [255, 255, 255], 
       fontStyle: "bold",
-      fontSize: 8 
+      fontSize: 9 
     },
     styles: { 
       fontSize: 8, 
       cellPadding: 3, 
       valign: "middle" 
+    },
+    columnStyles: {
+      0: { cellWidth: 55 },
+      1: { cellWidth: 35 },
+      2: { cellWidth: 40 },
+      3: { cellWidth: 20 },
+      4: { cellWidth: 35 }
     }
   });
 
-  doc.save(`Relatorio_Consulta_${new Date().toISOString().split("T")[0]}.pdf`);
+  doc.save(`Relatorio_SCI_${new Date().toISOString().split("T")[0]}.pdf`);
 }
 
 function sair(){
   localStorage.removeItem("usuarioConsulta");
-  localStorage.removeItem("usuarioLogado");
   window.location.href = "login.html";
 }
 
